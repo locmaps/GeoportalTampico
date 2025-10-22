@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geoportal Tampico - Sistema de Reportes</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  
+  <!-- CSS local -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo-section">
+        <h1 class="logo">🗺️ Geoportal Tampico</h1>
+        <p class="tagline">Sistema de Reportes Ciudadanos</p>
+      </div>
+      <nav class="nav-section">
+        <button class="nav-btn" id="btnHelp" title="Ayuda">
+          <span class="icon">ℹ️</span> Ayuda
+        </button>
+        <button class="nav-btn nav-btn-secondary" id="btnAbout" title="Acerca de">
+          <span class="icon">ℹ️</span> Acerca de
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Control Panel -->
+  <aside class="control-panel" id="controlPanel">
+    <div class="panel-header">
+      <h2>Controles</h2>
+      <button class="close-btn" id="closePanelBtn">✕</button>
+    </div>
+
+    <!-- Search Section -->
+    <div class="control-section">
+      <label class="section-title">🔍 Buscar Colonia</label>
+      <div class="search-container">
+        <input 
+          id="searchCol" 
+          type="text" 
+          placeholder="Escribe el nombre..." 
+          class="search-input"
+        >
+        <div class="suggestions-list" id="suggestionsList"></div>
+      </div>
+      <button id="btnSearch" class="btn btn-primary">Buscar</button>
+    </div>
+
+    <!-- Visibility Toggles -->
+    <div class="control-section">
+      <label class="section-title">👁️ Capas Visibles</label>
+      <div class="toggle-group">
+        <label class="toggle-label">
+          <input type="checkbox" id="toggleColonias" checked>
+          <span class="toggle-slider"></span>
+          <span>Colonias</span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggleReportes" checked>
+          <span class="toggle-slider"></span>
+          <span>Reportes</span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggleBuffers">
+          <span class="toggle-slider"></span>
+          <span>Buffers</span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggleHeatmap">
+          <span class="toggle-slider"></span>
+          <span>Mapa de Calor</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Map Base Layer -->
+    <div class="control-section">
+      <label class="section-title">🗺️ Tipo de Mapa</label>
+      <div class="toggle-group">
+        <label class="toggle-label">
+          <input type="radio" name="mapBase" value="osm" checked>
+          <span class="radio-slider"></span>
+          <span>Mapa Base</span>
+        </label>
+        <label class="toggle-label">
+          <input type="radio" name="mapBase" value="satellite">
+          <span class="radio-slider"></span>
+          <span>Satélite</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Filter by Type -->
+    <div class="control-section">
+      <label class="section-title">🏷️ Filtrar por Tipo</label>
+      <select id="filterTipo" class="select-input">
+        <option value="">Todos los tipos</option>
+        <option value="Alumbrado">💡 Alumbrado</option>
+        <option value="Bache">🚗 Bache</option>
+        <option value="Falta de alcantarilla">🚰 Falta de alcantarilla</option>
+        <option value="Drenaje saturado o mal olor constante">💨 Drenaje</option>
+        <option value="Fuga de agua">💧 Fuga de agua</option>
+        <option value="Basura acumulada">🗑️ Basura acumulada</option>
+      </select>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="control-section">
+      <label class="section-title">📍 Acciones</label>
+      <button id="btnLocatePanel" class="btn btn-secondary">Mi Ubicación</button>
+      <button id="btnAdd" class="btn btn-success">+ Nuevo Reporte</button>
+    </div>
+
+    <!-- Legend -->
+    <div class="control-section">
+      <label class="section-title">🎨 Leyenda</label>
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-color" style="background-color: #FFD700;"></span>
+          <span class="legend-label">Alumbrado</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background-color: #8B4513;"></span>
+          <span class="legend-label">Bache</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background-color: #FF6347;"></span>
+          <span class="legend-label">Falta de alcantarilla</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background-color: #10b981;"></span>
+          <span class="legend-label">Drenaje</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background-color: #1E90FF;"></span>
+          <span class="legend-label">Fuga de agua</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background-color: #FF8C00;"></span>
+          <span class="legend-label">Basura acumulada</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.6rem;">
+        <button id="btnInfoBuffers" class="btn btn-info-small">ℹ️ Buffers</button>
+        <button id="btnInfoHeatmap" class="btn btn-info-small">ℹ️ Mapa Calor</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Map Container -->
+  <main class="map-container">
+    <div id="map" class="map"></div>
+    
+    <!-- Toggle Panel Button (Mobile) -->
+    <button class="toggle-panel-btn" id="togglePanelBtn">
+      <span>☰</span>
+    </button>
+
+    <!-- Status Message -->
+    <div class="status-message" id="statusMsg"></div>
+
+    <!-- Report Form Modal -->
+    <div class="modal" id="formModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Crear Nuevo Reporte</h3>
+          <button class="modal-close" id="closeFormBtn">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>📍 Ubicación</label>
+            <div class="location-display" id="locDisplay">
+              Selecciona una ubicación
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 0.8rem;">
+              <button type="button" id="btnMapSelect" class="btn btn-primary" style="flex: 1; margin-bottom: 0;">
+                📍 Seleccionar en Mapa
+              </button>
+              <button type="button" id="btnLocationForm" class="btn btn-secondary" style="flex: 1; margin-bottom: 0;">
+                📌 Mi Ubicación
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="inputNombre">Alias o Nombre Público</label>
+            <input id="inputNombre" type="text" placeholder="Tu nombre (opcional)" class="input-field">
+          </div>
+
+          <div class="form-group">
+            <label for="inputCorreo">📧 Correo Electrónico</label>
+            <p class="help-text">Opcional: solo para notificar el seguimiento de tu reporte</p>
+            <input id="inputCorreo" type="email" placeholder="tu@email.com" class="input-field">
+          </div>
+
+          <div class="form-group">
+            <label for="inputTipo">🏷️ Tipo de Problemática</label>
+            <select id="inputTipo" class="select-input">
+              <option value="">Selecciona un tipo...</option>
+              <option value="Alumbrado">💡 Alumbrado</option>
+              <option value="Bache">🚗 Bache</option>
+              <option value="Falta de alcantarilla">🚰 Falta de alcantarilla</option>
+              <option value="Drenaje saturado o mal olor constante">💨 Drenaje saturado</option>
+              <option value="Fuga de agua">💧 Fuga de agua</option>
+              <option value="Basura acumulada">🗑️ Basura acumulada</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="inputDesc">📝 Descripción</label>
+            <textarea id="inputDesc" placeholder="Describe el problema en detalle..." class="textarea-field" rows="4"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="inputFoto">📷 Foto del Problema (Opcional)</label>
+            <p class="help-text">Sube una imagen para ayudar con la validación. Máximo 5MB.</p>
+            <div class="file-input-wrapper">
+              <input id="inputFoto" type="file" accept="image/*" class="file-input">
+              <label for="inputFoto" class="file-input-label">
+                <span class="file-icon">📤</span>
+                <span id="fileName">Selecciona una imagen</span>
+              </label>
+            </div>
+            <div id="photoPreview" class="photo-preview" style="display: none;">
+              <img id="previewImg" src="" alt="Vista previa">
+              <button type="button" class="btn-remove-photo" id="btnRemovePhoto">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btnCancel" class="btn btn-secondary">Cancelar</button>
+          <button id="btnSubmit" class="btn btn-success">Enviar Reporte</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3>Ayuda</h3>
+          <button class="modal-close" id="closeHelpBtn">✕</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>🗺️ Navegación del Mapa:</strong></p>
+          <p>Usa el mouse para desplazarte. Rueda del mouse para zoom.</p>
+          
+          <p><strong>📍 Crear Reportes:</strong></p>
+          <p>Haz click en "Nuevo Reporte", selecciona ubicación en el mapa y completa el formulario.</p>
+          
+          <p><strong>🔍 Buscar:</strong></p>
+          <p>Escribe el nombre de una colonia para filtrar y visualizar su información.</p>
+          
+          <p><strong>👁️ Capas:</strong></p>
+          <p>Activa o desactiva capas para personalizar tu vista.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal" id="aboutModal">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3>Acerca de</h3>
+          <button class="modal-close" id="closeAboutBtn">✕</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Geoportal Tampico v2.0</strong></p>
+          <p>Sistema moderno de reportes ciudadanos para mejorar la infraestructura pública.</p>
+          <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+            Desarrollado con Leaflet, Supabase y tecnologías web modernas.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buffers Info Modal -->
+    <div class="modal" id="buffersModal">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3>¿Qué son los Buffers?</h3>
+          <button class="modal-close" id="closeBuffersBtn">✕</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Los buffers</strong> son zonas de influencia alrededor de cada reporte que representan el área afectada por la problemática.</p>
+          
+          <p style="margin-top: 1.2rem;"><strong>📏 Distancias por tipo:</strong></p>
+          <ul style="list-style: none; padding: 0; margin-top: 0.8rem;">
+            <li style="margin-bottom: 0.6rem;">💡 <strong>Alumbrado:</strong> 300 metros</li>
+            <li style="margin-bottom: 0.6rem;">🚗 <strong>Bache:</strong> 200 metros</li>
+            <li style="margin-bottom: 0.6rem;">🚰 <strong>Falta de alcantarilla:</strong> 250 metros</li>
+            <li style="margin-bottom: 0.6rem;">💨 <strong>Drenaje:</strong> 300 metros</li>
+            <li style="margin-bottom: 0.6rem;">💧 <strong>Fuga de agua:</strong> 350 metros</li>
+            <li style="margin-bottom: 0.6rem;">🗑️ <strong>Basura acumulada:</strong> 200 metros</li>
+          </ul>
+
+          <p style="margin-top: 1.2rem; font-size: 0.9rem; color: #666;">Activa la capa de buffers para visualizar estas zonas en el mapa.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Heatmap Info Modal -->
+    <div class="modal" id="heatmapModal">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3>¿Qué es el Mapa de Calor?</h3>
+          <button class="modal-close" id="closeHeatmapBtn">✕</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>El Mapa de Calor</strong> muestra la concentración de reportes en diferentes zonas de la ciudad, permitiendo identificar áreas con mayor incidencia de problemas.</p>
+          
+          <p style="margin-top: 1.2rem;"><strong>🎨 Escala de colores:</strong></p>
+          <div style="margin-top: 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.6rem;">
+              <span style="width: 24px; height: 24px; background: #0099ff; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
+              <span>Baja concentración</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.6rem;">
+              <span style="width: 24px; height: 24px; background: #00ff00; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
+              <span>Concentración media</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.6rem;">
+              <span style="width: 24px; height: 24px; background: #ffff00; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
+              <span>Concentración alta</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <span style="width: 24px; height: 24px; background: #ff0000; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
+              <span>Concentración muy alta</span>
+            </div>
+          </div>
+
+          <p style="margin-top: 1.2rem; font-size: 0.9rem; color: #666;">Activa el Mapa de Calor para visualizar estos patrones en el mapa.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
