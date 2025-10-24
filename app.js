@@ -1099,6 +1099,9 @@ function removePhoto() {
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
   modal.classList.add('show');
+  
+  // Cerrar panel en móvil al abrir cualquier modal
+  closePanel();
 }
 
 function closeModal(modalId) {
