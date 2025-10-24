@@ -840,6 +840,9 @@ function openReportForm() {
   document.getElementById('locDisplay').textContent = 'Selecciona una ubicación';
   document.getElementById('locDisplay').classList.remove('active');
   showStatus('Abre el formulario de reporte', 'info');
+  
+  // Cerrar panel en móvil
+  closePanel();
 }
 
 function closeReportForm() {
