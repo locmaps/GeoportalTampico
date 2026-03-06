@@ -534,6 +534,21 @@ function attachEventListeners() {
   });
   document.getElementById('closeStatsBtn').addEventListener('click', () => closeStatsPanel());
 
+  // Acordeones estadísticas
+  document.getElementById('btnAccColonias').addEventListener('click', () => {
+    const acc = document.getElementById('accColonias');
+    const opening = !acc.classList.contains('open');
+    acc.classList.toggle('open');
+    if (opening) loadRankingColonias();
+  });
+
+  document.getElementById('btnAccTipos').addEventListener('click', () => {
+    const acc = document.getElementById('accTipos');
+    const opening = !acc.classList.contains('open');
+    acc.classList.toggle('open');
+    if (opening) loadRankingTipos();
+  });
+
   document.getElementById('btnHelp').addEventListener('click', () => openModal('helpModal'));
   document.getElementById('btnAbout').addEventListener('click', () => openModal('aboutModal'));
   document.getElementById('closeHelpBtn').addEventListener('click', () => closeModal('helpModal'));

@@ -1336,4 +1336,57 @@ html, body {
   flex-shrink: 0;
   border: 1px solid rgba(0,0,0,0.1);
 }
+/* =============================================
+   ACORDEÓN PANEL ESTADÍSTICAS
+   ============================================= */
+.stats-accordion {
+  border-bottom: 1px solid var(--border-light);
+}
+.stats-accordion:last-child { border-bottom: none; }
+
+.stats-accordion-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.stats-accordion-btn:hover { background: var(--surface-2); }
+
+.stats-accordion-left {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Título estilo section-title del panel izquierdo */
+.stats-acc-title {
+  font-size: 0.63rem;
+  font-weight: 600;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.stats-accordion-btn .ico {
+  opacity: 0.55;
+}
+
+.stats-accordion-arrow {
+  flex-shrink: 0;
+  color: var(--gray);
+  opacity: 0.6;
+  transition: transform 0.22s ease;
+}
+.stats-accordion.open .stats-accordion-arrow { transform: rotate(180deg); }
+
+.stats-accordion-body {
+  display: none;
+  padding: 0 1.2rem 1rem 1.2rem;
+}
+.stats-accordion.open .stats-accordion-body { display: block; }
 

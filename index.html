@@ -504,29 +504,37 @@
     </div>
 
     <div class="stats-panel-body">
-      <!-- Ranking colonias -->
-      <div class="stats-section">
-        <div class="stats-section-title">
-          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
-          Ranking por Colonia
-        </div>
-        <p class="stats-section-desc">Colonias con más reportes registrados</p>
-        <div id="rankingColonias" class="ranking-list">
-          <div class="ranking-loading">Cargando...</div>
+
+      <!-- Accordion: Ranking colonias -->
+      <div class="stats-accordion" id="accColonias">
+        <button class="stats-accordion-btn" id="btnAccColonias">
+          <span class="stats-accordion-left">
+            <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+            <span class="stats-acc-title">Ranking por Colonia</span>
+          </span>
+          <span class="stats-accordion-arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="stats-accordion-body">
+          <p class="stats-section-desc">Colonias con más reportes registrados</p>
+          <div id="rankingColonias" class="ranking-list"></div>
         </div>
       </div>
 
-      <!-- Ranking por tipo de reporte -->
-      <div class="stats-section">
-        <div class="stats-section-title">
-          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
-          Tipos de Reporte
-        </div>
-        <p class="stats-section-desc">Problemas más frecuentes en la ciudad</p>
-        <div id="rankingTipos" class="ranking-list">
-          <div class="ranking-loading">Cargando...</div>
+      <!-- Accordion: Tipos de reporte -->
+      <div class="stats-accordion" id="accTipos">
+        <button class="stats-accordion-btn" id="btnAccTipos">
+          <span class="stats-accordion-left">
+            <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+            <span class="stats-acc-title">Tipos de Reporte</span>
+          </span>
+          <span class="stats-accordion-arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="stats-accordion-body">
+          <p class="stats-section-desc">Problemas más frecuentes en la ciudad</p>
+          <div id="rankingTipos" class="ranking-list"></div>
         </div>
       </div>
+
     </div>
   </aside>
 
