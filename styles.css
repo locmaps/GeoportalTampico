@@ -1296,7 +1296,18 @@ html, body {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .stats-panel { width: 100%; }
+  .stats-panel {
+    width: 100%;
+    top: 58px;
+    right: 0;
+    height: calc(100vh - 58px);
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    z-index: 950;
+  }
+  .stats-panel.open {
+    transform: translateY(0);
+  }
 }
 /* =============================================
    LEYENDA DENSIDAD
@@ -1336,6 +1347,8 @@ html, body {
   flex-shrink: 0;
   border: 1px solid rgba(0,0,0,0.1);
 }
+
+
 /* =============================================
    ACORDEÓN PANEL ESTADÍSTICAS
    ============================================= */
@@ -1363,7 +1376,6 @@ html, body {
   gap: 0.35rem;
 }
 
-/* Título estilo section-title del panel izquierdo */
 .stats-acc-title {
   font-size: 0.63rem;
   font-weight: 600;
@@ -1372,9 +1384,7 @@ html, body {
   letter-spacing: 0.1em;
 }
 
-.stats-accordion-btn .ico {
-  opacity: 0.55;
-}
+.stats-accordion-btn .ico { opacity: 0.55; }
 
 .stats-accordion-arrow {
   flex-shrink: 0;
@@ -1389,4 +1399,3 @@ html, body {
   padding: 0 1.2rem 1rem 1.2rem;
 }
 .stats-accordion.open .stats-accordion-body { display: block; }
-
