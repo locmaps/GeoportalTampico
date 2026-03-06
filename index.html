@@ -2,8 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <!-- Content Security Policy: restringe fuentes permitidas de scripts, estilos e imágenes -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.arcgisonline.com blob:; connect-src 'self' https://twpwrflhkltitynmgmva.supabase.co wss://twpwrflhkltitynmgmva.supabase.co https://api.emailjs.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'">
+  <!-- Previene que la página sea embebida en iframes externos (clickjacking) -->
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Geoportal Tampico - Sistema de Reportes</title>
+
+  <!-- Google Fonts: DM Sans + DM Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -16,15 +25,17 @@
   <header class="header">
     <div class="header-content">
       <div class="logo-section">
-        <h1 class="logo">🗺️ Geoportal Tampico</h1>
+        <h1 class="logo"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></span> Geoportal Tampico</h1>
         <p class="tagline">Sistema de Reportes Ciudadanos</p>
       </div>
       <nav class="nav-section">
+        <button class="nav-btn" id="btnStats" title="Estadísticas"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> Estadísticas</button>
         <button class="nav-btn" id="btnHelp" title="Ayuda">
-          <span class="icon">ℹ️</span> Ayuda
+          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span> Ayuda
         </button>
+        <button class="nav-btn" id="btnTerminos" title="Términos y Condiciones"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span> Términos</button>
         <button class="nav-btn nav-btn-secondary" id="btnAbout" title="Acerca de">
-          <span class="icon">ℹ️</span> Acerca de
+          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span> Acerca de
         </button>
       </nav>
     </div>
@@ -34,12 +45,12 @@
   <aside class="control-panel" id="controlPanel">
     <div class="panel-header">
       <h2>Controles</h2>
-      <button class="close-btn" id="closePanelBtn">✕</button>
+      <button class="close-btn" id="closePanelBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
     </div>
 
     <!-- Search Section -->
     <div class="control-section">
-      <label class="section-title">🔍 Buscar Colonia</label>
+      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span> Buscar Colonia</label>
       <div class="search-container">
         <input 
           id="searchCol" 
@@ -54,10 +65,10 @@
 
     <!-- Visibility Toggles -->
     <div class="control-section">
-      <label class="section-title">👁️ Capas Visibles</label>
+      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span> Capas Visibles</label>
       <div class="toggle-group">
         <label class="toggle-label">
-          <input type="checkbox" id="toggleColonias" checked>
+          <input type="checkbox" id="toggleColonias">
           <span class="toggle-slider"></span>
           <span>Colonias</span>
         </label>
@@ -76,17 +87,22 @@
           <span class="toggle-slider"></span>
           <span>Mapa de Calor</span>
         </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggleDensidad">
+          <span class="toggle-slider"></span>
+          <span>Densidad</span>
+        </label>
       </div>
     </div>
 
     <!-- Map Base Layer -->
     <div class="control-section">
-      <label class="section-title">🗺️ Tipo de Mapa</label>
+      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></span> Tipo de Mapa</label>
       <div class="toggle-group">
         <label class="toggle-label">
           <input type="radio" name="mapBase" value="osm" checked>
           <span class="radio-slider"></span>
-          <span>Mapa Base</span>
+          <span>Oscuro</span>
         </label>
         <label class="toggle-label">
           <input type="radio" name="mapBase" value="satellite">
@@ -98,28 +114,28 @@
 
     <!-- Filter by Type -->
     <div class="control-section">
-      <label class="section-title">🏷️ Filtrar por Tipo</label>
+      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span> Filtrar por Tipo</label>
       <select id="filterTipo" class="select-input">
         <option value="">Todos los tipos</option>
-        <option value="Alumbrado">💡 Alumbrado</option>
-        <option value="Bache">🚗 Bache</option>
-        <option value="Falta de alcantarilla">🚰 Falta de alcantarilla</option>
-        <option value="Drenaje saturado o mal olor constante">💨 Drenaje</option>
-        <option value="Fuga de agua">💧 Fuga de agua</option>
-        <option value="Basura acumulada">🗑️ Basura acumulada</option>
+        <option value="Alumbrado"> Alumbrado</option>
+        <option value="Bache"> Bache</option>
+        <option value="Falta de alcantarilla"> Falta de alcantarilla</option>
+        <option value="Drenaje saturado o mal olor constante"> Drenaje</option>
+        <option value="Fuga de agua"> Fuga de agua</option>
+        <option value="Basura acumulada"> Basura acumulada</option>
       </select>
     </div>
 
     <!-- Action Buttons -->
     <div class="control-section">
-      <label class="section-title">📍 Acciones</label>
-      <button id="btnLocatePanel" class="btn btn-secondary">Mi Ubicación</button>
-      <button id="btnAdd" class="btn btn-success">+ Nuevo Reporte</button>
+      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span> Acciones</label>
+      <button id="btnLocatePanel" class="btn btn-secondary"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><circle cx="12" cy="12" r="7"/></svg></span> Mi Ubicación</button>
+      <button id="btnAdd" class="btn btn-success"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span> Nuevo Reporte</button>
     </div>
 
     <!-- Legend -->
     <div class="control-section">
-      <label class="section-title">🎨 Leyenda</label>
+      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></span> Leyenda</label>
       <div class="legend">
         <div class="legend-item">
           <span class="legend-color" style="background-color: #FFD700;"></span>
@@ -147,10 +163,15 @@
         </div>
       </div>
 
-      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.6rem;">
-        <button id="btnInfoBuffers" class="btn btn-info-small">ℹ️ Buffers</button>
-        <button id="btnInfoHeatmap" class="btn btn-info-small">ℹ️ Mapa Calor</button>
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; gap: 1rem; align-items: center;">
+        <button id="btnInfoBuffers" class="btn btn-info-small"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span> Buffers</button>
+        <button id="btnInfoHeatmap" class="btn btn-info-small"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span> Mapa Calor</button>
       </div>
+    </div>
+
+    <!-- Botón de contacto discreto -->
+    <div class="panel-contact-footer">
+      <button class="btn-contact-link" id="btnContacto"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span> Contacto</button>
     </div>
   </aside>
 
@@ -160,7 +181,7 @@
     
     <!-- Toggle Panel Button (Mobile) -->
     <button class="toggle-panel-btn" id="togglePanelBtn">
-      <span>☰</span>
+      <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
     </button>
 
     <!-- Status Message -->
@@ -171,21 +192,21 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3>Crear Nuevo Reporte</h3>
-          <button class="modal-close" id="closeFormBtn">✕</button>
+          <button class="modal-close" id="closeFormBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
         </div>
 
         <div class="modal-body">
           <div class="form-group">
-            <label>📍 Ubicación</label>
+            <label><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span> Ubicación</label>
             <div class="location-display" id="locDisplay">
               Selecciona una ubicación
             </div>
             <div style="margin-top: 1rem; display: flex; gap: 0.8rem;">
               <button type="button" id="btnMapSelect" class="btn btn-primary" style="flex: 1; margin-bottom: 0;">
-                📍 Seleccionar en Mapa
+                <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span> Seleccionar en Mapa
               </button>
               <button type="button" id="btnLocationForm" class="btn btn-secondary" style="flex: 1; margin-bottom: 0;">
-                📌 Mi Ubicación
+                <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><circle cx="12" cy="12" r="7"/></svg></span> Mi Ubicación
               </button>
             </div>
           </div>
@@ -196,49 +217,62 @@
           </div>
 
           <div class="form-group">
-            <label for="inputCorreo">📧 Correo Electrónico</label>
+            <label for="inputCorreo"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span> Correo Electrónico</label>
             <p class="help-text">Opcional: solo para notificar el seguimiento de tu reporte</p>
             <input id="inputCorreo" type="email" placeholder="tu@email.com" class="input-field">
           </div>
 
           <div class="form-group">
-            <label for="inputTipo">🏷️ Tipo de Problemática</label>
+            <label for="inputTipo"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span> Tipo de Problemática</label>
             <select id="inputTipo" class="select-input">
               <option value="">Selecciona un tipo...</option>
-              <option value="Alumbrado">💡 Alumbrado</option>
-              <option value="Bache">🚗 Bache</option>
-              <option value="Falta de alcantarilla">🚰 Falta de alcantarilla</option>
-              <option value="Drenaje saturado o mal olor constante">💨 Drenaje saturado</option>
-              <option value="Fuga de agua">💧 Fuga de agua</option>
-              <option value="Basura acumulada">🗑️ Basura acumulada</option>
+              <option value="Alumbrado"> Alumbrado</option>
+              <option value="Bache"> Bache</option>
+              <option value="Falta de alcantarilla"> Falta de alcantarilla</option>
+              <option value="Drenaje saturado o mal olor constante"> Drenaje saturado</option>
+              <option value="Fuga de agua"> Fuga de agua</option>
+              <option value="Basura acumulada"> Basura acumulada</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="inputDesc">📝 Descripción</label>
+            <label for="inputDesc"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span> Descripción</label>
             <textarea id="inputDesc" placeholder="Describe el problema en detalle..." class="textarea-field" rows="4"></textarea>
           </div>
 
           <div class="form-group">
-            <label for="inputFoto">📷 Foto del Problema (Opcional)</label>
+            <label for="inputFoto"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span> Foto del Problema (Opcional)</label>
             <p class="help-text">Sube una imagen para ayudar con la validación. Máximo 5MB.</p>
             <div class="file-input-wrapper">
               <input id="inputFoto" type="file" accept="image/*" class="file-input">
               <label for="inputFoto" class="file-input-label">
-                <span class="file-icon">📤</span>
+                <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></span>
                 <span id="fileName">Selecciona una imagen</span>
               </label>
             </div>
             <div id="photoPreview" class="photo-preview" style="display: none;">
               <img id="previewImg" src="" alt="Vista previa">
-              <button type="button" class="btn-remove-photo" id="btnRemovePhoto">✕</button>
+              <button type="button" class="btn-remove-photo" id="btnRemovePhoto"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
             </div>
           </div>
         </div>
 
+        <div class="terms-check-wrapper">
+          <label class="terms-check-label">
+            <input type="checkbox" id="aceptaTerminos">
+            <span class="terms-check-box"></span>
+            <span>He leído y acepto los <button type="button" id="btnVerTerminos" class="terms-inline-link">Términos y Condiciones y Aviso de Privacidad</button></span>
+          </label>
+          <label class="terms-check-label newsletter-check-label">
+            <input type="checkbox" id="aceptaNewsletter">
+            <span class="terms-check-box"></span>
+            <span><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span> Deseo recibir novedades, investigación y avances del proyecto <span class="terms-optional">(opcional)</span></span>
+          </label>
+        </div>
+
         <div class="modal-footer">
           <button id="btnCancel" class="btn btn-secondary">Cancelar</button>
-          <button id="btnSubmit" class="btn btn-success">Enviar Reporte</button>
+          <button id="btnSubmit" class="btn btn-success" disabled>Enviar Reporte</button>
         </div>
       </div>
     </div>
@@ -248,19 +282,19 @@
       <div class="modal-content modal-sm">
         <div class="modal-header">
           <h3>Ayuda</h3>
-          <button class="modal-close" id="closeHelpBtn">✕</button>
+          <button class="modal-close" id="closeHelpBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
         </div>
         <div class="modal-body">
-          <p><strong>🗺️ Navegación del Mapa:</strong></p>
+          <p><strong>Navegación del Mapa:</strong></p>
           <p>Usa el mouse para desplazarte. Rueda del mouse para zoom.</p>
           
-          <p><strong>📍 Crear Reportes:</strong></p>
+          <p><strong>Crear Reportes:</strong></p>
           <p>Haz click en "Nuevo Reporte", selecciona ubicación en el mapa y completa el formulario.</p>
           
-          <p><strong>🔍 Buscar:</strong></p>
+          <p><strong>Buscar:</strong></p>
           <p>Escribe el nombre de una colonia para filtrar y visualizar su información.</p>
           
-          <p><strong>👁️ Capas:</strong></p>
+          <p><strong>Capas:</strong></p>
           <p>Activa o desactiva capas para personalizar tu vista.</p>
         </div>
       </div>
@@ -271,7 +305,7 @@
       <div class="modal-content modal-sm">
         <div class="modal-header">
           <h3>Acerca de</h3>
-          <button class="modal-close" id="closeAboutBtn">✕</button>
+          <button class="modal-close" id="closeAboutBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
         </div>
         <div class="modal-body">
           <p><strong>Geoportal Tampico v2.0</strong></p>
@@ -288,19 +322,19 @@
       <div class="modal-content modal-sm">
         <div class="modal-header">
           <h3>¿Qué son los Buffers?</h3>
-          <button class="modal-close" id="closeBuffersBtn">✕</button>
+          <button class="modal-close" id="closeBuffersBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
         </div>
         <div class="modal-body">
           <p><strong>Los buffers</strong> son zonas de influencia alrededor de cada reporte que representan el área afectada por la problemática.</p>
           
-          <p style="margin-top: 1.2rem;"><strong>📏 Distancias por tipo:</strong></p>
+          <p style="margin-top: 1.2rem;"><strong>Distancias por tipo:</strong></p>
           <ul style="list-style: none; padding: 0; margin-top: 0.8rem;">
-            <li style="margin-bottom: 0.6rem;">💡 <strong>Alumbrado:</strong> 300 metros</li>
-            <li style="margin-bottom: 0.6rem;">🚗 <strong>Bache:</strong> 200 metros</li>
-            <li style="margin-bottom: 0.6rem;">🚰 <strong>Falta de alcantarilla:</strong> 250 metros</li>
-            <li style="margin-bottom: 0.6rem;">💨 <strong>Drenaje:</strong> 300 metros</li>
-            <li style="margin-bottom: 0.6rem;">💧 <strong>Fuga de agua:</strong> 350 metros</li>
-            <li style="margin-bottom: 0.6rem;">🗑️ <strong>Basura acumulada:</strong> 200 metros</li>
+            <li style="margin-bottom: 0.6rem;"><strong>Alumbrado:</strong> 50 metros</li>
+            <li style="margin-bottom: 0.6rem;"><strong>Bache:</strong> 30 metros</li>
+            <li style="margin-bottom: 0.6rem;"><strong>Falta de alcantarilla:</strong> 100 metros</li>
+            <li style="margin-bottom: 0.6rem;"><strong>Drenaje:</strong> 200 metros</li>
+            <li style="margin-bottom: 0.6rem;"><strong>Fuga de agua:</strong> 75 metros</li>
+            <li style="margin-bottom: 0.6rem;"><strong>Basura acumulada:</strong> 150 metros</li>
           </ul>
 
           <p style="margin-top: 1.2rem; font-size: 0.9rem; color: #666;">Activa la capa de buffers para visualizar estas zonas en el mapa.</p>
@@ -313,12 +347,12 @@
       <div class="modal-content modal-sm">
         <div class="modal-header">
           <h3>¿Qué es el Mapa de Calor?</h3>
-          <button class="modal-close" id="closeHeatmapBtn">✕</button>
+          <button class="modal-close" id="closeHeatmapBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
         </div>
         <div class="modal-body">
           <p><strong>El Mapa de Calor</strong> muestra la concentración de reportes en diferentes zonas de la ciudad, permitiendo identificar áreas con mayor incidencia de problemas.</p>
           
-          <p style="margin-top: 1.2rem;"><strong>🎨 Escala de colores:</strong></p>
+          <p style="margin-top: 1.2rem;"><strong>Escala de colores:</strong></p>
           <div style="margin-top: 0.8rem;">
             <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.6rem;">
               <span style="width: 24px; height: 24px; background: #0099ff; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
@@ -344,9 +378,161 @@
     </div>
   </main>
 
-  <!-- Scripts -->
+
+    <!-- Términos y Condiciones Modal -->
+    <div class="modal" id="terminosModal">
+      <div class="modal-content modal-terms">
+        <div class="modal-header">
+          <h3>Términos y Condiciones · Aviso de Privacidad</h3>
+          <button class="modal-close" id="closeTerminosBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+        </div>
+        <div class="modal-body terms-body">
+
+          <p class="terms-updated">Última actualización: junio de 2025 &nbsp;·&nbsp; Responsable: Diego Alejandro Cruz Sánchez &nbsp;·&nbsp; Contacto: <button type="button" class="terms-inline-link" id="btnContactoFromTerminos">formulario de contacto</button></p>
+
+          <h4>1. Identificación del Operador</h4>
+          <p>La presente plataforma digital (en adelante, la "Plataforma") es una herramienta tecnológica independiente de participación ciudadana y análisis territorial, desarrollada y operada por <strong>Diego Alejandro Cruz Sánchez</strong>, quien actúa como responsable del sistema y del tratamiento de los datos personales recabados a través del mismo.</p>
+          <p>Para cualquier asunto relacionado con la Plataforma, el operador puede ser contactado en: <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong></p>
+          <p>La Plataforma no forma parte, no depende ni representa oficialmente a ningún gobierno municipal, estatal o federal. El uso de nombres geográficos tiene únicamente fines descriptivos y de referencia territorial, sin que ello implique vínculo institucional alguno.</p>
+
+          <h4>2. Naturaleza del Servicio</h4>
+          <p>La Plataforma es un sistema WebGIS que permite a los usuarios registrar y visualizar reportes ciudadanos relacionados con problemáticas urbanas mediante herramientas de georreferenciación y visualización cartográfica interactiva.</p>
+          <p>La Plataforma constituye una herramienta tecnológica independiente de visualización y análisis ciudadano y no es un canal oficial de atención gubernamental ni sustituye mecanismos formales de denuncia o gestión pública.</p>
+
+          <h4>3. Finalidad del Sistema</h4>
+          <p>La información recopilada tiene como finalidad permitir la visualización pública de reportes georreferenciados, generar estadísticas agregadas sobre incidencias territoriales, desarrollar indicadores urbanos, realizar análisis geoespaciales y contribuir a la mejora continua del sistema.</p>
+          <p>La Plataforma no garantiza la atención, resolución ni canalización automática de los reportes ante autoridades.</p>
+
+          <h4>4. Datos que se Recopilan</h4>
+          <p>Al enviar un reporte, la Plataforma podrá recopilar los siguientes datos:</p>
+          <ul>
+            <li><strong>Ubicación geográfica</strong> correspondiente al punto seleccionado en el mapa — obligatorio.</li>
+            <li><strong>Tipo de problemática</strong> reportada — obligatorio.</li>
+            <li><strong>Descripción</strong> del incidente — obligatorio.</li>
+            <li><strong>Nombre o alias público</strong> — opcional.</li>
+            <li><strong>Correo electrónico</strong> — opcional.</li>
+            <li><strong>Fotografía</strong> relacionada con el reporte — opcional.</li>
+            <li><strong>Datos técnicos</strong> básicos (fecha y tipo de reporte) exclusivamente para el funcionamiento de la plataforma. No se recopilan direcciones IP ni datos de navegación.</li>
+          </ul>
+          <p>La Plataforma no recaba datos personales sensibles. El usuario es responsable de la veracidad y exactitud de la información proporcionada.</p>
+
+          <h4>5. Tratamiento de Datos Personales</h4>
+          <p>En cumplimiento de la <strong>Ley Federal de Protección de Datos Personales en Posesión de Particulares (LFPDPPP)</strong>, el operador es responsable del tratamiento de los datos personales proporcionados voluntariamente.</p>
+          <p>Los datos personales serán utilizados para las siguientes finalidades <strong>primarias</strong>: registrar y publicar el reporte en la Plataforma con fines de visualización y análisis ciudadano. El operador podrá establecer comunicación con el usuario únicamente en caso de requerir aclaración sobre la información enviada, sin que ello implique obligación de seguimiento, respuesta o gestión del reporte ante autoridad alguna.</p>
+          <p>De manera <strong>opcional y con consentimiento expreso</strong>, el correo electrónico proporcionado podrá utilizarse para las siguientes finalidades <strong>secundarias</strong>: envío de actualizaciones sobre el proyecto, divulgación de investigación y análisis geoespacial, comunicación de nuevas funcionalidades de la Plataforma y, en su momento, distribución de un boletín informativo (newsletter) relacionado con urbanismo, datos abiertos y tecnología cívica.</p>
+          <p>El usuario podrá revocar este consentimiento en cualquier momento escribiendo a <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong>. Los datos personales no serán vendidos, arrendados ni compartidos con terceros con fines comerciales.</p>
+
+          <h4>6. Uso de Información Agregada y Anonimizada</h4>
+          <p>La información no personal, así como los datos agregados y previamente anonimizados, podrán utilizarse para la elaboración de estadísticas, análisis territorial, desarrollo de indicadores urbanos, estudios académicos, generación de reportes públicos y mejora tecnológica de la Plataforma.</p>
+          <p>En ningún caso se divulgarán datos personales identificables sin consentimiento expreso del titular.</p>
+
+          <h4>7. Licencia sobre el Contenido Enviado</h4>
+          <p>Al enviar información, imágenes o cualquier contenido a través de la Plataforma, el usuario otorga al operador una licencia no exclusiva, gratuita y por tiempo indefinido para utilizar, reproducir y analizar dicho contenido con fines estadísticos, académicos, tecnológicos y de mejora del sistema, respetando la anonimización de datos personales cuando corresponda.</p>
+          <p>El usuario declara que cuenta con los derechos necesarios sobre la información y materiales enviados.</p>
+
+          <h4>8. Derechos ARCO</h4>
+          <p>El titular de los datos personales podrá ejercer sus derechos de <strong>Acceso, Rectificación, Cancelación u Oposición (ARCO)</strong>, así como revocar su consentimiento para el tratamiento de sus datos, mediante solicitud enviada a <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong>.</p>
+          <p>La solicitud deberá contener nombre del titular, descripción clara del derecho que desea ejercer y datos que permitan localizar su información dentro de la Plataforma. El responsable dará respuesta conforme a los plazos establecidos en la legislación aplicable.</p>
+
+          <h4>9. Uso de Cookies y Tecnologías Similares</h4>
+          <p>"La Plataforma no utiliza cookies propias. Servicios de terceros integrados en la Plataforma (como el proveedor de base de datos) pueden gestionar datos de sesión técnicos conforme a sus propias políticas de privacidad."</p>
+
+          <h4>10. Limitación de Responsabilidad</h4>
+          <p>La Plataforma se proporciona "tal cual", sin garantías expresas o implícitas respecto a su disponibilidad ininterrumpida, exactitud absoluta de la información o resultados derivados de su uso.</p>
+          <p>La Plataforma no sustituye los canales oficiales de emergencia ni garantiza que autoridades atiendan los reportes publicados. En caso de situaciones urgentes, el usuario deberá comunicarse directamente con las autoridades competentes.</p>
+
+          <h4>11. Propiedad Intelectual</h4>
+          <p>La infraestructura tecnológica, diseño, código fuente, base de datos, identidad visual y estructura del sistema son propiedad del operador de la Plataforma y están protegidos por la legislación aplicable.</p>
+          <p>Los reportes enviados pasan a formar parte de la base de datos del proyecto, sin perjuicio de los derechos que correspondan a sus autores.</p>
+
+          <h4>12. Alcance Territorial</h4>
+          <p>La Plataforma podrá operar en distintas ciudades o regiones, adaptando sus funcionalidades según el contexto territorial correspondiente. El uso de nombres geográficos no implica relación institucional con autoridades locales.</p>
+
+          <h4>13. Modificaciones</h4>
+          <p>El operador se reserva el derecho de modificar los presentes Términos y Condiciones y Aviso de Privacidad en cualquier momento. Las modificaciones serán publicadas en esta sección indicando la fecha de actualización correspondiente.</p>
+
+          <h4>14. Aceptación</h4
+
+          <p>Al utilizar la Plataforma y enviar un reporte, el usuario declara haber leído, entendido y aceptado los presentes Términos y Condiciones y Aviso de Privacidad, otorgando su consentimiento para el tratamiento de sus datos conforme a lo aquí establecido.</p>
+
+        </div>
+        <div class="modal-footer">
+          <button id="closeTerminosFooterBtn" class="btn btn-primary" style="margin-bottom:0;">Entendido</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Contacto -->
+    <div class="modal" id="contactoModal">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3>Contacto</h3>
+          <button class="modal-close" id="closeContactoBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:0.82rem; color:var(--gray); margin-bottom:1.2rem;">Reportar un problema con la plataforma o cualquier otra consulta, completa el formulario.</p>
+          <div class="form-group">
+            <label for="contactNombre">Nombre</label>
+            <input type="text" id="contactNombre" class="input-field" placeholder="Tu nombre">
+          </div>
+          <div class="form-group">
+            <label for="contactAsunto">Asunto</label>
+            <input type="text" id="contactAsunto" class="input-field" placeholder="Ej. Solicitud de cancelación de datos">
+          </div>
+          <div class="form-group">
+            <label for="contactCorreo">Tu correo electrónico</label>
+            <input type="email" id="contactCorreo" class="input-field" placeholder="tu@email.com">
+          </div>
+          <div class="form-group">
+            <label for="contactMensaje">Mensaje</label>
+            <textarea id="contactMensaje" class="input-field" rows="4" placeholder="Describe tu consulta o solicitud..." style="resize:vertical; min-height:90px;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnCancelContacto" class="btn btn-secondary">Cancelar</button>
+          <button id="btnEnviarContacto" class="btn btn-primary">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+
+  <!-- Panel de Estadísticas (derecho) -->
+  <aside class="stats-panel" id="statsPanel">
+    <div class="stats-panel-header">
+      <h3>Estadísticas</h3>
+      <button class="close-btn" id="closeStatsBtn"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></button>
+    </div>
+
+    <div class="stats-panel-body">
+      <!-- Ranking colonias -->
+      <div class="stats-section">
+        <div class="stats-section-title">
+          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          Ranking por Colonia
+        </div>
+        <p class="stats-section-desc">Colonias con más reportes registrados</p>
+        <div id="rankingColonias" class="ranking-list">
+          <div class="ranking-loading">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Ranking por tipo de reporte -->
+      <div class="stats-section">
+        <div class="stats-section-title">
+          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+          Tipos de Reporte
+        </div>
+        <p class="stats-section-desc">Problemas más frecuentes en la ciudad</p>
+        <div id="rankingTipos" class="ranking-list">
+          <div class="ranking-loading">Cargando...</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
