@@ -105,7 +105,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 // MAPA
 // =============================================
 function initializeMap() {
-  state.map = L.map('map').setView([22.254, -97.860], 13);
+  state.map = L.map('map', { zoomControl: false }).setView([22.254, -97.860], 13);
+
+  // Zoom: esquina inferior derecha en mobile, superior izquierda en desktop
+  const isMobile = window.innerWidth <= 768;
+  L.control.zoom({ position: isMobile ? 'bottomright' : 'topleft' }).addTo(state.map);
 
   // Capas base
   state.baseLayers.osm = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {

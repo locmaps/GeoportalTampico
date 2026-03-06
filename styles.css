@@ -1130,6 +1130,14 @@ html, body {
   .toggle-panel-btn { display: block; left: 1rem; top: 70px; }
   .toggle-panel-btn.hidden { display: none; }
 
+  /* Mover zoom de Leaflet a esquina inferior derecha en mobile */
+  .leaflet-top.leaflet-left .leaflet-control-zoom {
+    display: none;
+  }
+  .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+    display: block;
+  }
+
   .modal-content { max-width: 95vw; }
   .modal-sm      { max-width: 90vw; }
   .header-content { padding: 0 1rem; }
