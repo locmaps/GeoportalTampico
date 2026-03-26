@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <!-- Content Security Policy: restringe fuentes permitidas de scripts, estilos e imágenes -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.arcgisonline.com blob:; connect-src 'self' https://twpwrflhkltitynmgmva.supabase.co wss://twpwrflhkltitynmgmva.supabase.co https://api.emailjs.com https://nominatim.openstreetmap.org; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.arcgisonline.com https://twpwrflhkltitynmgmva.supabase.co blob:; connect-src 'self' https://twpwrflhkltitynmgmva.supabase.co wss://twpwrflhkltitynmgmva.supabase.co https://api.emailjs.com https://nominatim.openstreetmap.org; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'">
   <!-- Previene que la página sea embebida en iframes externos (clickjacking) -->
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -527,14 +527,14 @@
 
 
     <!-- Modal Foto Reporte -->
-    <div class="modal" id="fotoModal" role="dialog" aria-modal="true" aria-label="Fotografía del reporte">
+    <div class="modal" id="fotoModal" role="dialog" aria-modal="true" aria-label="Fotografía del reporte" tabindex="-1">
       <div class="foto-modal-content">
         <div class="foto-modal-header">
           <span class="foto-modal-label">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             Fotografía del reporte
           </span>
-          <button class="modal-close" id="closeFotoBtn" onclick="closeFotoModal()" aria-label="Cerrar">
+          <button class="modal-close" id="closeFotoBtn" aria-label="Cerrar">
             <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
           </button>
         </div>

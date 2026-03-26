@@ -100,13 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupRealtimeUpdates();
   handleResponsive();
 
-  // Cerrar modal de foto con Escape o click en backdrop
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeFotoModal();
-  });
-  document.getElementById('fotoModal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'fotoModal') closeFotoModal();
-  });
+  // (listeners del modal de foto registrados por delegación al final del archivo)
 });
 
 // =============================================
@@ -297,7 +291,8 @@ function applyFilters() {
 
     // Al abrir el popup, consultar si hay foto validada para este reporte
     marker.on('popupopen', () => {
-      loadFotoValidada(props.identificador_unico);
+      // Pequeño delay para asegurarse que el DOM del popup esté renderizado
+      setTimeout(() => loadFotoValidada(props.identificador_unico), 100);
     });
 
     state.layers.reportes.addLayer(marker);
@@ -2103,61 +2098,60 @@ function getTipoLugarIcono(cls, type) {
 // =============================================
 // FOTO VALIDADA EN POPUP
 // =============================================
-async function loadFotoValidada(identificadorUnico) {
-  if (!identificadorUnico) return;
-
+async function loadFotoValidada(identificadorUnico, marker) {
+  if (!identificadorUnico) { console.log('[Foto] sin identificadorUnico'); return; }
   try {
+    // 1. Buscar foto validada
     const { data, error } = await supabase
       .from('reporte_fotos')
-      .select('storage_path, storage_file_name')
+      .select('storage_path')
       .eq('identificador_unico', identificadorUnico)
       .eq('validado', 1)
-      .limit(1)
-      .single();
+      .limit(1);
 
-    if (error || !data) return;
+    console.log('[Foto] query:', { data, error, identificadorUnico });
+    if (error || !data || data.length === 0) { console.log('[Foto] sin foto validada'); return; }
 
-    // Generar URL pública de la imagen desde Supabase Storage
-    const { data: urlData } = supabase.storage
+    const storagePath = data[0].storage_path;
+    console.log('[Foto] storagePath:', storagePath);
+    if (!storagePath) return;
+
+    // 2. Signed URL — 1 hora
+    const { signedURL, error: signError } = await supabase.storage
       .from('reporte_fotos')
-      .getPublicUrl(data.storage_path);
+      .createSignedUrl(storagePath, 3600);
 
-    if (!urlData || !urlData.publicUrl) return;
+    console.log('[Foto] signedURL:', signedURL, 'error:', signError);
+    if (signError || !signedURL) { console.log('[Foto] fallo signed URL'); return; }
 
-    const publicUrl = urlData.publicUrl;
-
-    // Inyectar el botón en el footer del popup activo
-    const footer = document.querySelector('.leaflet-popup .popup-footer');
+    // 3. El popup puede seguir abierto o haberse cerrado mientras esperábamos la respuesta.
+    // Buscar el footer con selector amplio para mayor compatibilidad.
+    const footer = document.querySelector('.popup-footer');
+    console.log('[Foto] footer encontrado:', !!footer);
     if (!footer) return;
-
-    // Evitar duplicados
     if (footer.querySelector('.popup-foto-btn')) return;
 
     const btn = document.createElement('button');
     btn.className = 'popup-foto-btn';
     btn.title = 'Ver fotografía del reporte';
-    btn.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      Ver foto
-    `;
-    btn.addEventListener('click', () => openFotoModal(publicUrl));
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Ver foto';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // evitar que el listener global intercepte este click
+      openFotoModal(signedURL);
+    });
     footer.appendChild(btn);
+    console.log('[Foto] botón inyectado OK');
 
-  } catch { /* no hay foto, silencioso */ }
+  } catch (err) {
+    console.error('[Foto] excepcion:', err);
+  }
 }
 
 function openFotoModal(url) {
-  // Validar que la URL pertenece al dominio de Supabase esperado
-  const dominioPermitido = 'twpwrflhkltitynmgmva.supabase.co';
-  try {
-    const parsed = new URL(url);
-    if (!parsed.hostname.endsWith(dominioPermitido)) return;
-  } catch { return; }
-
+  console.log('[Foto] openFotoModal url:', url);
   const modal = document.getElementById('fotoModal');
   const img   = document.getElementById('fotoModalImg');
-  if (!modal || !img) return;
-
+  if (!modal || !img) { console.error('[Foto] modal o img no encontrados'); return; }
   img.src = url;
   modal.classList.add('show');
 }
@@ -2166,5 +2160,33 @@ function closeFotoModal() {
   const modal = document.getElementById('fotoModal');
   const img   = document.getElementById('fotoModalImg');
   if (modal) modal.classList.remove('show');
-  if (img)   img.src = '';
+  setTimeout(() => { if (img) img.src = ''; }, 250);
 }
+
+// =============================================
+// LISTENERS GLOBALES — MODAL FOTO (delegación)
+// Registrados fuera de DOMContentLoaded para
+// garantizar que siempre estén activos.
+// =============================================
+document.addEventListener('click', (e) => {
+  // Botón X del modal de foto
+  if (e.target.closest('#closeFotoBtn')) {
+    closeFotoModal();
+    return;
+  }
+  // Click en el backdrop: solo cerrar si el modal está visible
+  // y el click no vino del botón "Ver foto" (que usa stopPropagation)
+  const modal = document.getElementById('fotoModal');
+  if (modal && modal.classList.contains('show')) {
+    if (!e.target.closest('.foto-modal-content') && !e.target.closest('.popup-foto-btn')) {
+      closeFotoModal();
+    }
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('fotoModal');
+    if (modal && modal.classList.contains('show')) closeFotoModal();
+  }
+});
