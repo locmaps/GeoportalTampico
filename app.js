@@ -99,6 +99,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   attachEventListeners();
   setupRealtimeUpdates();
   handleResponsive();
+
+  // Cerrar modal de foto con Escape o click en backdrop
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeFotoModal();
+  });
+  document.getElementById('fotoModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'fotoModal') closeFotoModal();
+  });
 });
 
 // =============================================
@@ -251,9 +259,15 @@ function applyFilters() {
 
           <div class="popup-section">
             <h4 class="popup-section-title"><span class="ico ico-popup" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> Información</h4>
-            <div class="popup-info-item">
-              <span class="popup-info-label">Fecha:</span>
-              <span class="popup-info-value">${fechaFormato}</span>
+            <div class="popup-date-block">
+              <div class="popup-date-row">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="popup-date-ico"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span class="popup-date-value">${fechaFormato.fecha}</span>
+              </div>
+              <div class="popup-date-row">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="popup-date-ico"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span class="popup-date-hora">${fechaFormato.hora}</span>
+              </div>
             </div>
           </div>
 
@@ -279,6 +293,11 @@ function applyFilters() {
       className: 'custom-popup',
       maxWidth: 400,
       minWidth: 300
+    });
+
+    // Al abrir el popup, consultar si hay foto validada para este reporte
+    marker.on('popupopen', () => {
+      loadFotoValidada(props.identificador_unico);
     });
 
     state.layers.reportes.addLayer(marker);
@@ -437,6 +456,34 @@ function attachEventListeners() {
   document.getElementById('btnSearch').addEventListener('click', () => {
     const query = searchInput.value.trim();
     if (query) searchColonia(query);
+  });
+
+  // --- Búsqueda de Lugares de Interés ---
+  const searchLugar = document.getElementById('searchLugar');
+  searchLugar.addEventListener('input', (e) => handleLugarInput(e));
+  searchLugar.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); searchLugares(); }
+  });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const query = searchInput.value.trim();
+      if (query) searchColonia(query);
+    }
+  });
+
+  document.getElementById('btnSearchLugar').addEventListener('click', searchLugares);
+
+  // Tabs
+  document.getElementById('tabColonias').addEventListener('click', () => switchSearchTab('colonias'));
+  document.getElementById('tabLugares').addEventListener('click', () => switchSearchTab('lugares'));
+
+  // Cerrar sugerencias de lugares al hacer click fuera
+  document.addEventListener('click', (e) => {
+    const lugarSug = document.getElementById('lugarSuggestions');
+    if (e.target !== searchLugar && lugarSug && !lugarSug.contains(e.target)) {
+      lugarSug.style.display = 'none';
+    }
   });
 
   // Toggles de capas
@@ -854,6 +901,13 @@ async function handleColoniaClick(e, feature) {
   }
 
   const nombreSafe = escapeHtml(feature.properties.nombre || 'Sin nombre');
+  const poblacion = feature.properties.poblacion;
+  const pobHTML = (poblacion !== undefined && poblacion !== null)
+    ? `<div class="popup-stat-item">
+         <span class="popup-stat-label">Población:</span>
+         <span class="popup-stat-value">${Number(poblacion).toLocaleString('es-MX')} hab.</span>
+       </div>`
+    : '';
 
   const popupContent = `
     <div class="popup-container">
@@ -866,6 +920,10 @@ async function handleColoniaClick(e, feature) {
       </div>
       
       <div class="popup-content">
+        ${pobHTML ? `<div class="popup-section">
+          <h4 class="popup-section-title">Datos Poblacionales</h4>
+          <div class="popup-stats">${pobHTML}</div>
+        </div>` : ''}
         <div class="popup-section">
           <h4 class="popup-section-title">Estadísticas de Reportes</h4>
           ${statsHTML}
@@ -881,6 +939,17 @@ async function handleColoniaClick(e, feature) {
     closeButton: true,
     autoClose: false
   }).openPopup();
+}
+
+
+function createLocationMarker(lat, lng) {
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="loc-marker-wrap"><div class="loc-marker-pulse"></div><div class="loc-marker-dot"></div></div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
+  });
+  return L.marker([lat, lng], { icon });
 }
 
 function handleLocateFromForm() {
@@ -902,16 +971,7 @@ function handleLocateFromForm() {
         state.map.removeLayer(state.form.tempMarker);
       }
 
-      state.form.tempMarker = L.circleMarker([lat, lng], {
-        radius: 10,
-        fillColor: '#2563eb',
-        color: '#ffffff',
-        weight: 3,
-        opacity: 1,
-        fillOpacity: 0.9
-      }).addTo(state.map)
-        .bindPopup('Tu ubicación')
-        .openPopup();
+      state.form.tempMarker = createLocationMarker(lat, lng).addTo(state.map);
 
       state.form.location = { lat, lng };
       document.getElementById('locDisplay').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -943,16 +1003,7 @@ function handleLocatePanel() {
         state.map.removeLayer(state.form.tempMarker);
       }
 
-      state.form.tempMarker = L.circleMarker([lat, lng], {
-        radius: 10,
-        fillColor: '#2563eb',
-        color: '#ffffff',
-        weight: 3,
-        opacity: 1,
-        fillOpacity: 0.9
-      }).addTo(state.map)
-        .bindPopup('Tu ubicación actual')
-        .openPopup();
+      state.form.tempMarker = createLocationMarker(lat, lng).addTo(state.map);
 
       showStatus('Ubicación centrada', 'success');
     },
@@ -1086,7 +1137,6 @@ async function submitReport() {
 
   // Leer consentimiento de newsletter (opcional)
   const aceptaNewsletter = document.getElementById('aceptaNewsletter')?.checked || false;
-  console.log('[Newsletter] checkbox marcado:', aceptaNewsletter);
 
   // --- Anti-spam: rate limiting cliente ---
   const ahora = Date.now();
@@ -1380,16 +1430,16 @@ function getMarkerColor(tipo) {
 
 function formatDate(fechaISO) {
   const fecha = new Date(fechaISO);
-  const opciones = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'America/Mexico_City'
-  };
-  return fecha.toLocaleDateString('es-MX', opciones);
+  const tz = 'America/Mexico_City';
+  const fechaStr = fecha.toLocaleDateString('es-MX', {
+    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', timeZone: tz
+  });
+  const horaStr = fecha.toLocaleTimeString('es-MX', {
+    hour: '2-digit', minute: '2-digit', hour12: true, timeZone: tz
+  });
+  // Capitalizar primera letra y limpiar puntos de abreviatura
+  const fechaCap = fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1).replace(/\.(?=[a-z])/g, '. ').trim();
+  return { fecha: fechaCap, hora: horaStr };
 }
 
 function getStatusHTML(estado) {
@@ -1604,11 +1654,42 @@ async function loadDensidadMapa() {
       }
     });
 
-    polygon.bindTooltip(`
-      <strong>${escapeHtml(row.nombre)}</strong><br>
-      Densidad: ${densidad} rep/km²<br>
-      Reportes: ${row.total_reportes}
-    `, { sticky: true });
+    polygon.on('click', function(e) {
+      if (state.form.open) return;
+      const popupContent = `
+        <div class="popup-container">
+          <div class="popup-header">
+            <span class="ico ico-popup" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+            <div>
+              <h3 class="popup-title">${escapeHtml(row.nombre)}</h3>
+              <span class="popup-badge" style="background: rgba(99,102,241,0.12); color: #6366f1;">Densidad</span>
+            </div>
+          </div>
+          <div class="popup-content">
+            <div class="popup-section">
+              <h4 class="popup-section-title">Análisis de Densidad</h4>
+              <div class="popup-stats">
+                <div class="popup-stat-item" style="font-weight: 700; margin-bottom: 0.8rem;">
+                  <span style="color: var(--dark);">Densidad:</span>
+                  <span class="popup-stat-value">${densidad} rep/ha</span>
+                </div>
+                <div class="popup-stat-item">
+                  <span class="popup-stat-label">Total reportes:</span>
+                  <span class="popup-stat-value">${row.total_reportes}</span>
+                </div>
+                <div class="popup-stat-item">
+                  <span class="popup-stat-label">Área:</span>
+                  <span class="popup-stat-value">${row.area_ha !== undefined ? row.area_ha : "—"} ha</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      L.popup({ className: 'custom-popup', maxWidth: 320, minWidth: 260 })
+        .setLatLng(e.latlng)
+        .setContent(popupContent)
+        .openOn(state.map);
+    });
 
     state.layers.densidad.addLayer(polygon);
   });
@@ -1620,7 +1701,7 @@ async function loadDensidadMapa() {
       const div = L.DomUtil.create('div', 'densidad-leyenda');
       div.id = 'densidadLeyenda';
       div.innerHTML = `
-        <div class="leyenda-title">Densidad (rep/km²)</div>
+        <div class="leyenda-title">Densidad (rep/ha)</div>
         <div class="leyenda-item"><span style="background:#bbf7d0"></span> Muy baja</div>
         <div class="leyenda-item"><span style="background:#86efac"></span> Baja</div>
         <div class="leyenda-item"><span style="background:#fde68a"></span> Media</div>
@@ -1691,3 +1772,399 @@ function loadRankingTipos() {
   }).join('');
 }
 
+// =============================================
+// BÚSQUEDA DE TABS (Colonias / Lugares)
+// =============================================
+function switchSearchTab(tab) {
+  document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.search-tab-panel').forEach(p => p.classList.remove('active'));
+
+  document.getElementById(tab === 'colonias' ? 'tabColonias' : 'tabLugares').classList.add('active');
+  document.getElementById(tab === 'colonias' ? 'panelColonias' : 'panelLugares').classList.add('active');
+}
+
+// =============================================
+// BÚSQUEDA DE LUGARES (Nominatim / OSM)
+// =============================================
+
+// Estado para el marcador de lugar activo
+let lugarMarker = null;
+let lugarDebounceTimer = null;
+
+async function handleLugarInput(e) {
+  const query = e.target.value.trim();
+  const lugarSug = document.getElementById('lugarSuggestions');
+
+  clearTimeout(lugarDebounceTimer);
+
+  if (query.length < 3) {
+    lugarSug.style.display = 'none';
+    return;
+  }
+
+  lugarDebounceTimer = setTimeout(async () => {
+    const results = await fetchLugares(query, true);
+    renderLugarSuggestions(results);
+  }, 400);
+}
+
+async function searchLugares() {
+  const query = document.getElementById('searchLugar').value.trim();
+  if (!query) return;
+
+  const resultsContainer = document.getElementById('lugarResults');
+  const lugarSug = document.getElementById('lugarSuggestions');
+  lugarSug.style.display = 'none';
+  resultsContainer.innerHTML = '<div class="lugar-loading"><span class="lugar-spinner"></span> Buscando...</div>';
+
+  const results = await fetchLugares(query, false);
+
+  if (!results || results.length === 0) {
+    resultsContainer.innerHTML = '<div class="lugar-empty">No se encontraron resultados en Tampico para esa búsqueda.</div>';
+    return;
+  }
+
+  renderLugarResults(results);
+}
+
+async function fetchLugares(query, autocomplete = false) {
+  const q = query.replace(/[<>"'`;&]/g, '').substring(0, 100);
+  const limit = autocomplete ? 5 : 10;
+
+  // Detectar si parece una dirección (contiene dígitos)
+  const esDir = /\d/.test(q);
+
+  // Intento 1: búsqueda con viewbox en Tampico
+  const params1 = new URLSearchParams({
+    q: q + ', Tampico, Tamaulipas, México',
+    format: 'json',
+    limit: limit,
+    addressdetails: 1,
+    countrycodes: 'mx',
+    viewbox: '-98.00,22.40,-97.70,22.10',
+    bounded: esDir ? 0 : 1,
+    'accept-language': 'es'
+  });
+
+  try {
+    const res1 = await fetch('https://nominatim.openstreetmap.org/search?' + params1, {
+      headers: { 'Accept-Language': 'es' }
+    });
+    if (res1.ok) {
+      const data1 = await res1.json();
+      if (data1.length > 0) return data1;
+    }
+  } catch (err) { /* continuar */ }
+
+  // Fallback: sin bounded, solo countrycodes
+  const params2 = new URLSearchParams({
+    q: q + ', Tampico, Tamaulipas, México',
+    format: 'json',
+    limit: limit,
+    addressdetails: 1,
+    countrycodes: 'mx',
+    'accept-language': 'es'
+  });
+
+  try {
+    const res2 = await fetch('https://nominatim.openstreetmap.org/search?' + params2, {
+      headers: { 'Accept-Language': 'es' }
+    });
+    if (res2.ok) return await res2.json();
+  } catch (err) { /* nada */ }
+
+  return [];
+}
+
+// Extrae nombre principal y subtítulo de un resultado Nominatim
+function formatLugarDisplay(r) {
+  const parts = r.display_name.split(',').map(s => s.trim());
+  const addr = r.address || {};
+
+  // Para direcciones: "Calle Número, Colonia"
+  const esDir = r.class === 'highway' || r.type === 'residential' || addr.road;
+  if (esDir && addr.road) {
+    const num = addr.house_number ? addr.house_number + ' ' : '';
+    const name = addr.road + (num ? ' ' + num.trim() : '');
+    const sub = addr.neighbourhood || addr.suburb || addr.city_district || addr.city || parts[1] || '';
+    return { name, sub };
+  }
+
+  // Para lugares: primer fragmento como nombre, segundo como contexto
+  const name = parts[0];
+  const sub = parts[1] || addr.suburb || addr.city || '';
+  return { name, sub };
+}
+
+function renderLugarSuggestions(results) {
+  const lugarSug = document.getElementById('lugarSuggestions');
+  const searchLugar = document.getElementById('searchLugar');
+
+  if (!results || results.length === 0) {
+    lugarSug.style.display = 'none';
+    return;
+  }
+
+  lugarSug.innerHTML = '';
+  results.forEach(r => {
+    const { name, sub } = formatLugarDisplay(r);
+    const div = document.createElement('div');
+    // Nombre principal en negrita + subtítulo en gris
+    const span1 = document.createElement('span');
+    span1.textContent = name;
+    span1.style.fontWeight = '500';
+    div.appendChild(span1);
+    if (sub) {
+      const span2 = document.createElement('span');
+      span2.textContent = '  ' + sub;
+      span2.style.color = 'var(--gray)';
+      span2.style.fontSize = '0.75rem';
+      div.appendChild(span2);
+    }
+    div.title = r.display_name;
+    div.addEventListener('click', () => {
+      searchLugar.value = name;
+      lugarSug.style.display = 'none';
+      goToLugar(r);
+      document.getElementById('lugarResults').innerHTML = '';
+    });
+    lugarSug.appendChild(div);
+  });
+  lugarSug.style.display = 'block';
+}
+
+function renderLugarResults(results) {
+  const container = document.getElementById('lugarResults');
+
+  container.innerHTML = results.map((r, i) => {
+    const { name, sub } = formatLugarDisplay(r);
+    const { icon, label } = getTipoLugarIcono(r.class, r.type);
+    // Usar sub si existe, si no la etiqueta de tipo
+    const subtitulo = sub || label;
+    return `
+      <div class="lugar-item" data-idx="${i}" title="${escapeHtml(r.display_name)}">
+        <div class="lugar-item-icon">${icon}</div>
+        <div class="lugar-item-info">
+          <div class="lugar-item-name">${escapeHtml(name)}</div>
+          <div class="lugar-item-tipo">${escapeHtml(subtitulo)}</div>
+        </div>
+        <button class="lugar-item-btn" onclick="goToLugarByIdx(${i})" title="Ir al lugar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        </button>
+      </div>`;
+  }).join('');
+
+  window._lugarResults = results;
+
+  container.querySelectorAll('.lugar-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.lugar-item-btn')) return;
+      const idx = parseInt(el.dataset.idx);
+      goToLugar(window._lugarResults[idx]);
+    });
+  });
+}
+
+window.goToLugarByIdx = function(idx) {
+  if (window._lugarResults && window._lugarResults[idx]) {
+    goToLugar(window._lugarResults[idx]);
+  }
+};
+
+function goToLugar(result) {
+  const lat = parseFloat(result.lat);
+  const lon = parseFloat(result.lon);
+  if (isNaN(lat) || isNaN(lon)) return;
+
+  // Quitar marcador anterior
+  if (lugarMarker) {
+    state.map.removeLayer(lugarMarker);
+    lugarMarker = null;
+  }
+
+  const { name, sub } = formatLugarDisplay(result);
+  const { icon, label } = getTipoLugarIcono(result.class, result.type);
+  const addr = result.address || {};
+
+  // Construir líneas de dirección detalladas
+  const calleNum = addr.road
+    ? (addr.road + (addr.house_number ? ' #' + addr.house_number : ''))
+    : null;
+  const colonia = addr.neighbourhood || addr.suburb || addr.city_district || '';
+  const ciudad  = addr.city || addr.town || addr.village || 'Tampico';
+  const cp      = addr.postcode ? 'C.P. ' + addr.postcode : '';
+
+  const addrLines = [calleNum, colonia, ciudad, cp].filter(Boolean);
+  const addrHTML = addrLines.length
+    ? addrLines.map(l => '<div>' + escapeHtml(l) + '</div>').join('')
+    : '<div>' + escapeHtml(result.display_name) + '</div>';
+
+  // Crear marcador personalizado
+  const customIcon = L.divIcon({
+    className: '',
+    html: '<div class="lugar-map-pin"><div class="lugar-map-pin-icon">' + icon + '</div></div>',
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -38]
+  });
+
+  lugarMarker = L.marker([lat, lon], { icon: customIcon });
+
+  const popupContent =
+    '<div class="popup-container">' +
+      '<div class="popup-header">' +
+        '<span class="ico ico-popup" aria-hidden="true">' + icon + '</span>' +
+        '<div>' +
+          '<h3 class="popup-title">' + escapeHtml(name) + '</h3>' +
+          '<span class="popup-badge" style="background: rgba(74,103,65,0.12); color: var(--accent);">' + escapeHtml(label) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="popup-content">' +
+        '<div class="popup-section">' +
+          '<div class="popup-info-item" style="align-items:flex-start; gap:0.4rem;">' +
+            '<span class="popup-info-label" style="padding-top:1px;">Dirección:</span>' +
+            '<span class="popup-info-value" style="font-size:0.78rem; line-height:1.55;">' + addrHTML + '</span>' +
+          '</div>' +
+          '<div class="popup-info-item" style="margin-top:0.5rem;">' +
+            '<span class="popup-info-label">Coords:</span>' +
+            '<span class="popup-info-value">' + lat.toFixed(5) + ', ' + lon.toFixed(5) + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="popup-footer">' +
+        '<span class="popup-id">OpenStreetMap / Nominatim</span>' +
+      '</div>' +
+    '</div>';
+
+  lugarMarker.bindPopup(popupContent, {
+    className: 'custom-popup',
+    maxWidth: 360,
+    minWidth: 280
+  });
+
+  lugarMarker.addTo(state.map);
+  state.map.setView([lat, lon], 17, { animate: true });
+  lugarMarker.openPopup();
+
+  // Al cerrar el popup, quitar el marcador
+  lugarMarker.on('popupclose', () => {
+    if (lugarMarker) {
+      state.map.removeLayer(lugarMarker);
+      lugarMarker = null;
+    }
+  });
+}
+
+function getTipoLugarIcono(cls, type) {
+  // Mapeo de categorías OSM a iconos SVG y etiquetas en español
+  const map = {
+    amenity: {
+      hospital:    { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>', label: 'Hospital' },
+      clinic:      { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="9" y1="12" x2="15" y2="12"/></svg>', label: 'Clínica' },
+      pharmacy:    { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 21v-4"/><path d="M5 3h14v10a7 7 0 0 1-14 0V3z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="12" y1="6" x2="12" y2="12"/></svg>', label: 'Farmacia' },
+      school:      { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V10l8-7 8 7v10"/><polyline points="12 20 12 13"/><path d="M9 13h6"/></svg>', label: 'Escuela' },
+      university:  { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V10l8-7 8 7v10"/></svg>', label: 'Universidad' },
+      bank:        { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11"/><path d="M12 3L2 10h20L12 3z"/></svg>', label: 'Banco' },
+      restaurant:  { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6h5zm0 0v7"/></svg>', label: 'Restaurante' },
+      supermarket: { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', label: 'Supermercado' },
+      fuel:        { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V7l7-4 7 4v15"/><line x1="3" y1="22" x2="21" y2="22"/><line x1="10" y1="22" x2="10" y2="13"/><line x1="14" y1="22" x2="14" y2="13"/><line x1="10" y1="13" x2="14" y2="13"/></svg>', label: 'Gasolinera' },
+      police:      { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', label: 'Policía' },
+      fire_station:{ icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>', label: 'Bomberos' },
+      parking:     { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg>', label: 'Estacionamiento' },
+      place_of_worship: { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>', label: 'Iglesia / Templo' },
+    },
+    leisure: {
+      park:        { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5 19.9 3 22h18M9.5 2a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/><path d="M17 8c0-3.3-2.7-6-6-6S5 4.7 5 8c0 2.4 1.4 4.5 3.5 5.6"/></svg>', label: 'Parque' },
+      sports_centre: { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>', label: 'Centro Deportivo' },
+      stadium:     { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>', label: 'Estadio' },
+    },
+    tourism: {
+      hotel:       { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20V8l-10-6L2 8z"/><rect x="9" y="14" width="6" height="6"/></svg>', label: 'Hotel' },
+      museum:      { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>', label: 'Museo' },
+      attraction:  { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', label: 'Atracción' },
+    },
+    shop: {
+      mall:        { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>', label: 'Centro Comercial' },
+    },
+    highway: {
+      default:     { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>', label: 'Vía / Calle' }
+    }
+  };
+
+  const defaultIcono = { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>', label: 'Lugar' };
+
+  if (cls && map[cls]) {
+    if (type && map[cls][type]) return map[cls][type];
+    if (map[cls].default) return map[cls].default;
+  }
+  return defaultIcono;
+}
+
+// =============================================
+// FOTO VALIDADA EN POPUP
+// =============================================
+async function loadFotoValidada(identificadorUnico) {
+  if (!identificadorUnico) return;
+
+  try {
+    const { data, error } = await supabase
+      .from('reporte_fotos')
+      .select('storage_path, storage_file_name')
+      .eq('identificador_unico', identificadorUnico)
+      .eq('validado', 1)
+      .limit(1)
+      .single();
+
+    if (error || !data) return;
+
+    // Generar URL pública de la imagen desde Supabase Storage
+    const { data: urlData } = supabase.storage
+      .from('reporte_fotos')
+      .getPublicUrl(data.storage_path);
+
+    if (!urlData || !urlData.publicUrl) return;
+
+    const publicUrl = urlData.publicUrl;
+
+    // Inyectar el botón en el footer del popup activo
+    const footer = document.querySelector('.leaflet-popup .popup-footer');
+    if (!footer) return;
+
+    // Evitar duplicados
+    if (footer.querySelector('.popup-foto-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'popup-foto-btn';
+    btn.title = 'Ver fotografía del reporte';
+    btn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Ver foto
+    `;
+    btn.addEventListener('click', () => openFotoModal(publicUrl));
+    footer.appendChild(btn);
+
+  } catch { /* no hay foto, silencioso */ }
+}
+
+function openFotoModal(url) {
+  // Validar que la URL pertenece al dominio de Supabase esperado
+  const dominioPermitido = 'twpwrflhkltitynmgmva.supabase.co';
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname.endsWith(dominioPermitido)) return;
+  } catch { return; }
+
+  const modal = document.getElementById('fotoModal');
+  const img   = document.getElementById('fotoModalImg');
+  if (!modal || !img) return;
+
+  img.src = url;
+  modal.classList.add('show');
+}
+
+function closeFotoModal() {
+  const modal = document.getElementById('fotoModal');
+  const img   = document.getElementById('fotoModalImg');
+  if (modal) modal.classList.remove('show');
+  if (img)   img.src = '';
+}

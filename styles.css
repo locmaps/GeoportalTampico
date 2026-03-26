@@ -770,15 +770,54 @@ html, body {
 .popup-info-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  gap: 0.6rem;
   padding: 0.35rem 0;
   font-size: 0.86rem;
   border-bottom: 1px solid var(--border-light);
 }
 
 .popup-info-item:last-child { border-bottom: none; }
-.popup-info-label { color: var(--gray); font-weight: 400; }
-.popup-info-value { color: var(--dark); font-weight: 500; }
+.popup-info-label { color: var(--gray); font-weight: 400; flex-shrink: 0; }
+.popup-info-value { color: var(--dark); font-weight: 500; text-align: right; }
+
+/* Bloque de fecha en popup de reportes */
+.popup-date-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.popup-date-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.popup-date-ico {
+  color: var(--gray);
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.popup-date-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--dark);
+  letter-spacing: 0.01em;
+}
+
+.popup-date-hora {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--gray);
+}
 
 .popup-description {
   background: var(--surface-2);
@@ -1399,3 +1438,363 @@ html, body {
   padding: 0 1.2rem 1rem 1.2rem;
 }
 .stats-accordion.open .stats-accordion-body { display: block; }
+
+/* =============================================
+   MARCADOR DE UBICACIÓN ACTUAL
+   ============================================= */
+.loc-marker-wrap {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loc-marker-dot {
+  width: 14px;
+  height: 14px;
+  background: #2563eb;
+  border: 2.5px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 6px rgba(37,99,235,0.6);
+  position: relative;
+  z-index: 2;
+}
+
+.loc-marker-pulse {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background: rgba(37,99,235,0.18);
+  border: 1.5px solid rgba(37,99,235,0.35);
+  border-radius: 50%;
+  animation: locPulse 2s ease-out infinite;
+  z-index: 1;
+}
+
+@keyframes locPulse {
+  0%   { transform: scale(0.5); opacity: 1; }
+  70%  { transform: scale(1.1); opacity: 0.3; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* =============================================
+   SEARCH TABS (Colonias / Lugares)
+   ============================================= */
+.search-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.search-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.52rem 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--gray);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  letter-spacing: 0.01em;
+}
+
+.search-tab .ico {
+  opacity: 0.7;
+}
+
+.search-tab:hover {
+  color: var(--dark);
+  background: var(--surface-3);
+}
+
+.search-tab.active {
+  color: var(--dark);
+  background: var(--surface);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.search-tab.active .ico {
+  opacity: 1;
+}
+
+.search-tab-panel {
+  display: none;
+}
+
+.search-tab-panel.active {
+  display: block;
+}
+
+/* =============================================
+   LUGAR RESULTS LIST
+   ============================================= */
+.lugar-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--gray);
+  padding: 0.8rem 0.2rem;
+}
+
+.lugar-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.lugar-empty {
+  font-size: 0.78rem;
+  color: var(--gray);
+  padding: 0.8rem 0.2rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.lugar-results {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.lugar-results::-webkit-scrollbar { width: 4px; }
+.lugar-results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.lugar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--surface);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.lugar-item:hover {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+.lugar-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: rgba(74,103,65,0.09);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.lugar-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lugar-item-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lugar-item-tipo {
+  font-size: 0.7rem;
+  color: var(--gray);
+  margin-top: 0.1rem;
+}
+
+.lugar-item-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--gray);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.lugar-item-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* =============================================
+   LUGAR MAP PIN
+   ============================================= */
+.lugar-map-pin {
+  width: 36px;
+  height: 36px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lugar-map-pin-icon {
+  transform: rotate(45deg);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =============================================
+   POPUP — BOTÓN VER FOTO
+   ============================================= */
+.popup-foto-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--dark-light);
+  cursor: pointer;
+  transition: var(--transition);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.popup-foto-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.popup-foto-btn svg {
+  flex-shrink: 0;
+}
+
+/* =============================================
+   MODAL LIGHTBOX — FOTO REPORTE
+   ============================================= */
+.foto-modal-content {
+  background: white;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.22s ease;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.foto-modal-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.foto-modal-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--dark);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.foto-modal-label svg {
+  color: var(--accent);
+}
+
+.foto-modal-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  min-height: 200px;
+}
+
+.foto-modal-img {
+  max-width: 100%;
+  max-height: calc(90vh - 120px);
+  object-fit: contain;
+  display: block;
+}
+
+.foto-modal-footer {
+  padding: 0.65rem 1.25rem;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.foto-modal-aviso {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .foto-modal-content {
+    max-width: 100%;
+    max-height: 95vh;
+  }
+  .foto-modal-img {
+    max-height: calc(95vh - 120px);
+  }
+}

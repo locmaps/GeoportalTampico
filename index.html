@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <!-- Content Security Policy: restringe fuentes permitidas de scripts, estilos e imágenes -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.arcgisonline.com blob:; connect-src 'self' https://twpwrflhkltitynmgmva.supabase.co wss://twpwrflhkltitynmgmva.supabase.co https://api.emailjs.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.arcgisonline.com blob:; connect-src 'self' https://twpwrflhkltitynmgmva.supabase.co wss://twpwrflhkltitynmgmva.supabase.co https://api.emailjs.com https://nominatim.openstreetmap.org; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'">
   <!-- Previene que la página sea embebida en iframes externos (clickjacking) -->
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,17 +50,48 @@
 
     <!-- Search Section -->
     <div class="control-section">
-      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span> Buscar Colonia</label>
-      <div class="search-container">
-        <input 
-          id="searchCol" 
-          type="text" 
-          placeholder="Escribe el nombre..." 
-          class="search-input"
-        >
-        <div class="suggestions-list" id="suggestionsList"></div>
+      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span> Buscar</label>
+
+      <!-- Tabs -->
+      <div class="search-tabs">
+        <button class="search-tab active" id="tabColonias" data-tab="colonias">
+          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          Colonias
+        </button>
+        <button class="search-tab" id="tabLugares" data-tab="lugares">
+          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          Lugares
+        </button>
       </div>
-      <button id="btnSearch" class="btn btn-primary">Buscar</button>
+
+      <!-- Tab: Colonias -->
+      <div class="search-tab-panel active" id="panelColonias">
+        <div class="search-container">
+          <input 
+            id="searchCol" 
+            type="text" 
+            placeholder="Escribe el nombre..." 
+            class="search-input"
+          >
+          <div class="suggestions-list" id="suggestionsList"></div>
+        </div>
+        <button id="btnSearch" class="btn btn-primary">Buscar</button>
+      </div>
+
+      <!-- Tab: Lugares de interés -->
+      <div class="search-tab-panel" id="panelLugares">
+        <div class="search-container">
+          <input 
+            id="searchLugar" 
+            type="text" 
+            placeholder="Ej. Hospital, Parque, Escuela..." 
+            class="search-input"
+          >
+          <div class="suggestions-list" id="lugarSuggestions"></div>
+        </div>
+        <button id="btnSearchLugar" class="btn btn-primary">Buscar</button>
+        <div id="lugarResults" class="lugar-results"></div>
+      </div>
     </div>
 
     <!-- Visibility Toggles -->
@@ -376,7 +407,6 @@
         </div>
       </div>
     </div>
-  </main>
 
 
     <!-- Términos y Condiciones Modal -->
@@ -451,7 +481,7 @@
           <h4>13. Modificaciones</h4>
           <p>El operador se reserva el derecho de modificar los presentes Términos y Condiciones y Aviso de Privacidad en cualquier momento. Las modificaciones serán publicadas en esta sección indicando la fecha de actualización correspondiente.</p>
 
-          <h4>14. Aceptación</h4
+          <h4>14. Aceptación</h4>
 
           <p>Al utilizar la Plataforma y enviar un reporte, el usuario declara haber leído, entendido y aceptado los presentes Términos y Condiciones y Aviso de Privacidad, otorgando su consentimiento para el tratamiento de sus datos conforme a lo aquí establecido.</p>
 
@@ -494,6 +524,33 @@
         </div>
       </div>
     </div>
+
+
+    <!-- Modal Foto Reporte -->
+    <div class="modal" id="fotoModal" role="dialog" aria-modal="true" aria-label="Fotografía del reporte">
+      <div class="foto-modal-content">
+        <div class="foto-modal-header">
+          <span class="foto-modal-label">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Fotografía del reporte
+          </span>
+          <button class="modal-close" id="closeFotoBtn" onclick="closeFotoModal()" aria-label="Cerrar">
+            <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+          </button>
+        </div>
+        <div class="foto-modal-body">
+          <img id="fotoModalImg" src="" alt="Fotografía del reporte" class="foto-modal-img" />
+        </div>
+        <div class="foto-modal-footer">
+          <span class="foto-modal-aviso">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Imagen verificada
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </main>
 
 
   <!-- Panel de Estadísticas (derecho) -->
