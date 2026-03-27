@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <!-- Content Security Policy: restringe fuentes permitidas de scripts, estilos e imágenes -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.arcgisonline.com https://twpwrflhkltitynmgmva.supabase.co blob:; connect-src 'self' https://twpwrflhkltitynmgmva.supabase.co wss://twpwrflhkltitynmgmva.supabase.co https://api.emailjs.com https://nominatim.openstreetmap.org; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; img-src 'self' data: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.arcgisonline.com blob:; connect-src 'self' https://twpwrflhkltitynmgmva.supabase.co wss://twpwrflhkltitynmgmva.supabase.co https://api.emailjs.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'">
   <!-- Previene que la página sea embebida en iframes externos (clickjacking) -->
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,48 +50,17 @@
 
     <!-- Search Section -->
     <div class="control-section">
-      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span> Buscar</label>
-
-      <!-- Tabs -->
-      <div class="search-tabs">
-        <button class="search-tab active" id="tabColonias" data-tab="colonias">
-          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-          Colonias
-        </button>
-        <button class="search-tab" id="tabLugares" data-tab="lugares">
-          <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-          Lugares
-        </button>
+      <label class="section-title"><span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span> Buscar Colonia</label>
+      <div class="search-container">
+        <input 
+          id="searchCol" 
+          type="text" 
+          placeholder="Escribe el nombre..." 
+          class="search-input"
+        >
+        <div class="suggestions-list" id="suggestionsList"></div>
       </div>
-
-      <!-- Tab: Colonias -->
-      <div class="search-tab-panel active" id="panelColonias">
-        <div class="search-container">
-          <input 
-            id="searchCol" 
-            type="text" 
-            placeholder="Escribe el nombre..." 
-            class="search-input"
-          >
-          <div class="suggestions-list" id="suggestionsList"></div>
-        </div>
-        <button id="btnSearch" class="btn btn-primary">Buscar</button>
-      </div>
-
-      <!-- Tab: Lugares de interés -->
-      <div class="search-tab-panel" id="panelLugares">
-        <div class="search-container">
-          <input 
-            id="searchLugar" 
-            type="text" 
-            placeholder="Ej. Hospital, Parque, Escuela..." 
-            class="search-input"
-          >
-          <div class="suggestions-list" id="lugarSuggestions"></div>
-        </div>
-        <button id="btnSearchLugar" class="btn btn-primary">Buscar</button>
-        <div id="lugarResults" class="lugar-results"></div>
-      </div>
+      <button id="btnSearch" class="btn btn-primary">Buscar</button>
     </div>
 
     <!-- Visibility Toggles -->
@@ -407,6 +376,7 @@
         </div>
       </div>
     </div>
+  </main>
 
 
     <!-- Términos y Condiciones Modal -->
@@ -418,22 +388,23 @@
         </div>
         <div class="modal-body terms-body">
 
-          <p class="terms-updated">Última actualización: junio de 2025 &nbsp;·&nbsp; Responsable: Diego Alejandro Cruz Sánchez &nbsp;·&nbsp; Contacto: <button type="button" class="terms-inline-link" id="btnContactoFromTerminos">formulario de contacto</button></p>
+          <p class="terms-updated">Última actualización: marzo de 2026 &nbsp;·&nbsp; Responsable: Diego Alejandro Cruz Sánchez &nbsp;·&nbsp; Contacto: <button type="button" class="terms-inline-link" id="btnContactoFromTerminos">formulario de contacto</button></p>
 
-          <h4>1. Identificación del Operador</h4>
+          <h4>1. IDENTIFICACIÓN DEL OPERADOR</h4>
           <p>La presente plataforma digital (en adelante, la "Plataforma") es una herramienta tecnológica independiente de participación ciudadana y análisis territorial, desarrollada y operada por <strong>Diego Alejandro Cruz Sánchez</strong>, quien actúa como responsable del sistema y del tratamiento de los datos personales recabados a través del mismo.</p>
-          <p>Para cualquier asunto relacionado con la Plataforma, el operador puede ser contactado en: <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong></p>
+          <p>Para cualquier asunto relacionado con la Plataforma, el operador puede ser contactado mediante el <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong>.</p>
           <p>La Plataforma no forma parte, no depende ni representa oficialmente a ningún gobierno municipal, estatal o federal. El uso de nombres geográficos tiene únicamente fines descriptivos y de referencia territorial, sin que ello implique vínculo institucional alguno.</p>
 
-          <h4>2. Naturaleza del Servicio</h4>
+          <h4>2. NATURALEZA DEL SERVICIO</h4>
           <p>La Plataforma es un sistema WebGIS que permite a los usuarios registrar y visualizar reportes ciudadanos relacionados con problemáticas urbanas mediante herramientas de georreferenciación y visualización cartográfica interactiva.</p>
           <p>La Plataforma constituye una herramienta tecnológica independiente de visualización y análisis ciudadano y no es un canal oficial de atención gubernamental ni sustituye mecanismos formales de denuncia o gestión pública.</p>
+          <p>Asimismo, la Plataforma podrá considerarse en fase de prototipo, versión piloto o desarrollo continuo, por lo que sus funcionalidades pueden cambiar, evolucionar o interrumpirse sin previo aviso.</p>
 
-          <h4>3. Finalidad del Sistema</h4>
+          <h4>3. FINALIDAD DEL SISTEMA</h4>
           <p>La información recopilada tiene como finalidad permitir la visualización pública de reportes georreferenciados, generar estadísticas agregadas sobre incidencias territoriales, desarrollar indicadores urbanos, realizar análisis geoespaciales y contribuir a la mejora continua del sistema.</p>
           <p>La Plataforma no garantiza la atención, resolución ni canalización automática de los reportes ante autoridades.</p>
 
-          <h4>4. Datos que se Recopilan</h4>
+          <h4>4. DATOS QUE SE RECOPILAN</h4>
           <p>Al enviar un reporte, la Plataforma podrá recopilar los siguientes datos:</p>
           <ul>
             <li><strong>Ubicación geográfica</strong> correspondiente al punto seleccionado en el mapa — obligatorio.</li>
@@ -442,50 +413,67 @@
             <li><strong>Nombre o alias público</strong> — opcional.</li>
             <li><strong>Correo electrónico</strong> — opcional.</li>
             <li><strong>Fotografía</strong> relacionada con el reporte — opcional.</li>
-            <li><strong>Datos técnicos</strong> básicos (fecha y tipo de reporte) exclusivamente para el funcionamiento de la plataforma. No se recopilan direcciones IP ni datos de navegación.</li>
+            <li><strong>Datos técnicos básicos</strong> (fecha y tipo de reporte) exclusivamente para el funcionamiento de la plataforma.</li>
           </ul>
-          <p>La Plataforma no recaba datos personales sensibles. El usuario es responsable de la veracidad y exactitud de la información proporcionada.</p>
+          <p>La Plataforma no recopila datos personales sensibles ni información de navegación identificable. El usuario es responsable de la veracidad y exactitud de la información proporcionada.</p>
 
-          <h4>5. Tratamiento de Datos Personales</h4>
+          <h4>5. TRATAMIENTO DE DATOS PERSONALES</h4>
           <p>En cumplimiento de la <strong>Ley Federal de Protección de Datos Personales en Posesión de Particulares (LFPDPPP)</strong>, el operador es responsable del tratamiento de los datos personales proporcionados voluntariamente.</p>
-          <p>Los datos personales serán utilizados para las siguientes finalidades <strong>primarias</strong>: registrar y publicar el reporte en la Plataforma con fines de visualización y análisis ciudadano. El operador podrá establecer comunicación con el usuario únicamente en caso de requerir aclaración sobre la información enviada, sin que ello implique obligación de seguimiento, respuesta o gestión del reporte ante autoridad alguna.</p>
-          <p>De manera <strong>opcional y con consentimiento expreso</strong>, el correo electrónico proporcionado podrá utilizarse para las siguientes finalidades <strong>secundarias</strong>: envío de actualizaciones sobre el proyecto, divulgación de investigación y análisis geoespacial, comunicación de nuevas funcionalidades de la Plataforma y, en su momento, distribución de un boletín informativo (newsletter) relacionado con urbanismo, datos abiertos y tecnología cívica.</p>
-          <p>El usuario podrá revocar este consentimiento en cualquier momento escribiendo a <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong>. Los datos personales no serán vendidos, arrendados ni compartidos con terceros con fines comerciales.</p>
+          <p>Los datos personales serán utilizados para las siguientes finalidades <strong>primarias</strong>: registrar y publicar el reporte en la Plataforma con fines de visualización y análisis ciudadano.</p>
+          <p>El operador podrá establecer comunicación con el usuario únicamente en caso de requerir aclaración sobre la información enviada, sin que ello implique obligación de seguimiento, respuesta o gestión del reporte ante autoridad alguna.</p>
+          <p>De manera <strong>opcional y con consentimiento expreso</strong>, el correo electrónico podrá utilizarse para:</p>
+          <ul>
+            <li>Envío de actualizaciones del proyecto.</li>
+            <li>Divulgación de análisis geoespacial.</li>
+            <li>Comunicación de nuevas funcionalidades.</li>
+            <li>Distribución de contenido informativo relacionado con urbanismo y tecnología cívica.</li>
+          </ul>
+          <p>El usuario podrá revocar este consentimiento en cualquier momento mediante el <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong>.</p>
+          <p>Los datos personales no serán vendidos ni compartidos con terceros con fines comerciales sin consentimiento expreso del titular.</p>
 
-          <h4>6. Uso de Información Agregada y Anonimizada</h4>
+          <h4>6. USO DE INFORMACIÓN AGREGADA Y ANONIMIZADA</h4>
           <p>La información no personal, así como los datos agregados y previamente anonimizados, podrán utilizarse para la elaboración de estadísticas, análisis territorial, desarrollo de indicadores urbanos, estudios académicos, generación de reportes públicos y mejora tecnológica de la Plataforma.</p>
-          <p>En ningún caso se divulgarán datos personales identificables sin consentimiento expreso del titular.</p>
+          <p>Dicha información podrá ser utilizada o compartida en contextos académicos, institucionales o profesionales, siempre sin posibilidad de identificar a los usuarios.</p>
 
-          <h4>7. Licencia sobre el Contenido Enviado</h4>
+          <h4>7. LICENCIA SOBRE EL CONTENIDO ENVIADO</h4>
           <p>Al enviar información, imágenes o cualquier contenido a través de la Plataforma, el usuario otorga al operador una licencia no exclusiva, gratuita y por tiempo indefinido para utilizar, reproducir y analizar dicho contenido con fines estadísticos, académicos, tecnológicos y de mejora del sistema, respetando la anonimización de datos personales cuando corresponda.</p>
           <p>El usuario declara que cuenta con los derechos necesarios sobre la información y materiales enviados.</p>
 
-          <h4>8. Derechos ARCO</h4>
-          <p>El titular de los datos personales podrá ejercer sus derechos de <strong>Acceso, Rectificación, Cancelación u Oposición (ARCO)</strong>, así como revocar su consentimiento para el tratamiento de sus datos, mediante solicitud enviada a <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong>.</p>
-          <p>La solicitud deberá contener nombre del titular, descripción clara del derecho que desea ejercer y datos que permitan localizar su información dentro de la Plataforma. El responsable dará respuesta conforme a los plazos establecidos en la legislación aplicable.</p>
+          <h4>8. DERECHOS ARCO</h4>
+          <p>El titular de los datos personales podrá ejercer sus derechos de <strong>Acceso, Rectificación, Cancelación u Oposición (ARCO)</strong>, así como revocar su consentimiento para el tratamiento de sus datos, mediante solicitud enviada a través del <strong><button type="button" class="terms-inline-link btn-contacto-terms">formulario de contacto</button></strong>.</p>
+          <p>La solicitud deberá contener: nombre completo del titular, descripción clara del derecho que desea ejercer y los datos que permitan localizar su información dentro de la Plataforma. El responsable dará respuesta conforme a los plazos establecidos en la legislación aplicable.</p>
 
-          <h4>9. Uso de Cookies y Tecnologías Similares</h4>
-          <p>"La Plataforma no utiliza cookies propias. Servicios de terceros integrados en la Plataforma (como el proveedor de base de datos) pueden gestionar datos de sesión técnicos conforme a sus propias políticas de privacidad."</p>
+          <h4>9. USO DE COOKIES Y TECNOLOGÍAS SIMILARES</h4>
+          <p>La Plataforma no utiliza cookies propias. Servicios de terceros integrados pueden gestionar datos técnicos de sesión conforme a sus propias políticas de privacidad.</p>
 
-          <h4>10. Limitación de Responsabilidad</h4>
-          <p>La Plataforma se proporciona "tal cual", sin garantías expresas o implícitas respecto a su disponibilidad ininterrumpida, exactitud absoluta de la información o resultados derivados de su uso.</p>
-          <p>La Plataforma no sustituye los canales oficiales de emergencia ni garantiza que autoridades atiendan los reportes publicados. En caso de situaciones urgentes, el usuario deberá comunicarse directamente con las autoridades competentes.</p>
+          <h4>10. USO ADECUADO DE LA PLATAFORMA</h4>
+          <p>El usuario se compromete a utilizar la Plataforma de manera responsable y a no:</p>
+          <ul>
+            <li>Publicar información falsa, engañosa o no verificable.</li>
+            <li>Ingresar contenido ofensivo, ilegal o ajeno a la finalidad del sistema.</li>
+            <li>Realizar usos automatizados, masivos o maliciosos que afecten la operación del sistema.</li>
+          </ul>
 
-          <h4>11. Propiedad Intelectual</h4>
-          <p>La infraestructura tecnológica, diseño, código fuente, base de datos, identidad visual y estructura del sistema son propiedad del operador de la Plataforma y están protegidos por la legislación aplicable.</p>
-          <p>Los reportes enviados pasan a formar parte de la base de datos del proyecto, sin perjuicio de los derechos que correspondan a sus autores.</p>
+          <h4>11. LIMITACIÓN DE RESPONSABILIDAD</h4>
+          <p>La Plataforma se proporciona "tal cual", sin garantías respecto a su disponibilidad, precisión o resultados derivados de su uso.</p>
+          <p>La información mostrada no constituye datos oficiales ni debe utilizarse como única base para la toma de decisiones críticas. En caso de situaciones urgentes, el usuario deberá comunicarse directamente con las autoridades competentes.</p>
 
-          <h4>12. Alcance Territorial</h4>
+          <h4>12. PROPIEDAD INTELECTUAL</h4>
+          <p>La infraestructura tecnológica, diseño, código fuente, base de datos, identidad visual y estructura del sistema son propiedad del operador y están protegidos por la legislación aplicable.</p>
+          <p>El acceso a la Plataforma no otorga ningún derecho de uso, reproducción, distribución, modificación o explotación del sistema sin autorización expresa del operador.</p>
+
+          <h4>13. ALCANCE TERRITORIAL</h4>
           <p>La Plataforma podrá operar en distintas ciudades o regiones, adaptando sus funcionalidades según el contexto territorial correspondiente. El uso de nombres geográficos no implica relación institucional con autoridades locales.</p>
 
-          <h4>13. Modificaciones</h4>
-          <p>El operador se reserva el derecho de modificar los presentes Términos y Condiciones y Aviso de Privacidad en cualquier momento. Las modificaciones serán publicadas en esta sección indicando la fecha de actualización correspondiente.</p>
+          <h4>14. USO PROFESIONAL Y POSIBLES IMPLEMENTACIONES</h4>
+          <p>La Plataforma se desarrolla como una iniciativa de innovación en el uso de tecnologías geoespaciales aplicadas al análisis urbano y la participación ciudadana.</p>
+          <p>Su metodología, arquitectura y enfoque podrán ser adaptados o implementados en distintos contextos, incluyendo entornos académicos, institucionales o profesionales, mediante acuerdos específicos con el operador.</p>
 
-          <h4>14. Aceptación</h4>
+          <h4>15. MODIFICACIONES</h4>
+          <p>El operador se reserva el derecho de modificar los presentes Términos y Condiciones en cualquier momento. Las modificaciones serán publicadas indicando la fecha de actualización.</p>
 
-          <p>Al utilizar la Plataforma y enviar un reporte, el usuario declara haber leído, entendido y aceptado los presentes Términos y Condiciones y Aviso de Privacidad, otorgando su consentimiento para el tratamiento de sus datos conforme a lo aquí establecido.</p>
-
-        </div>
+          <h4>16. ACEPTACIÓN</h4>
+          <p>El uso de la Plataforma implica la aceptación de los presentes Términos y Condiciones, así como del tratamiento de datos conforme a lo aquí establecido.</p>
         <div class="modal-footer">
           <button id="closeTerminosFooterBtn" class="btn btn-primary" style="margin-bottom:0;">Entendido</button>
         </div>
@@ -524,33 +512,6 @@
         </div>
       </div>
     </div>
-
-
-    <!-- Modal Foto Reporte -->
-    <div class="modal" id="fotoModal" role="dialog" aria-modal="true" aria-label="Fotografía del reporte" tabindex="-1">
-      <div class="foto-modal-content">
-        <div class="foto-modal-header">
-          <span class="foto-modal-label">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            Fotografía del reporte
-          </span>
-          <button class="modal-close" id="closeFotoBtn" aria-label="Cerrar">
-            <span class="ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
-          </button>
-        </div>
-        <div class="foto-modal-body">
-          <img id="fotoModalImg" src="" alt="Fotografía del reporte" class="foto-modal-img" />
-        </div>
-        <div class="foto-modal-footer">
-          <span class="foto-modal-aviso">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Imagen verificada
-          </span>
-        </div>
-      </div>
-    </div>
-
-  </main>
 
 
   <!-- Panel de Estadísticas (derecho) -->
