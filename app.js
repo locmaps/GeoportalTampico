@@ -1,3 +1,4 @@
+
 // =============================================
 // CONFIGURACIÓN SUPABASE
 // La SUPABASE_KEY es la clave "anon" (pública).
