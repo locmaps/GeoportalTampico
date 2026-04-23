@@ -1,4 +1,3 @@
-
 // =============================================
 // CONFIGURACIÓN SUPABASE
 // La SUPABASE_KEY es la clave "anon" (pública).
@@ -35,7 +34,7 @@ const SECURITY = {
   MAX_NOMBRE_LEN: 100,
   MAX_DESC_LEN: 1000,
   MAX_CORREO_LEN: 200,
-  MAX_FOTO_BYTES: 5 * 1024 * 1024, // 5 MB
+  MAX_FOTO_BYTES: 15 * 1024 * 1024, // 15 MB
   TIPOS_IMAGEN_PERMITIDOS: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
   // Límite de tiempo entre envíos (ms) — anti-spam básico
   RATE_LIMIT_MS: 30000,
@@ -67,7 +66,9 @@ const state = {
     buffers: []
   },
   filters: {
-    tipo: ''
+    tipo: '',
+    fechaDesde: null,
+    fechaHasta: null
   },
   form: {
     open: false,
@@ -96,7 +97,9 @@ const colorPorTipo = {
 // =============================================
 document.addEventListener('DOMContentLoaded', async () => {
   initializeMap();
+  showLoadingOverlay(true);
   await loadAllData();
+  showLoadingOverlay(false);
   attachEventListeners();
   setupRealtimeUpdates();
   handleResponsive();
@@ -158,6 +161,32 @@ async function loadAllData() {
   }
 }
 
+// =============================================
+// INDICADOR DE CARGA INICIAL
+// =============================================
+function showLoadingOverlay(visible) {
+  let overlay = document.getElementById('loadingOverlay');
+
+  if (visible) {
+    if (overlay) return; // ya existe
+    overlay = document.createElement('div');
+    overlay.id = 'loadingOverlay';
+    overlay.setAttribute('role', 'status');
+    overlay.setAttribute('aria-live', 'polite');
+    overlay.innerHTML = `
+      <div class="loading-overlay-inner">
+        <div class="loading-spinner" aria-hidden="true"></div>
+        <span>Cargando datos...</span>
+      </div>`;
+    document.body.appendChild(overlay);
+  } else {
+    if (!overlay) return;
+    overlay.classList.add('loading-overlay--hidden');
+    // Remover del DOM después de la transición de salida
+    setTimeout(() => overlay.remove(), 400);
+  }
+}
+
 async function loadColonias() {
   const { data, error } = await supabase.rpc('get_colonias_geojson');
   if (error) return;
@@ -216,6 +245,18 @@ function applyFilters() {
 
     const props = feature.properties;
     if (state.filters.tipo && props.tipo !== state.filters.tipo) return;
+
+    // Filtro por fecha
+    if (state.filters.fechaDesde || state.filters.fechaHasta) {
+      const fechaReporte = props.fecha ? new Date(props.fecha) : null;
+      if (!fechaReporte || isNaN(fechaReporte)) return;
+      if (state.filters.fechaDesde && fechaReporte < state.filters.fechaDesde) return;
+      if (state.filters.fechaHasta) {
+        const hasta = new Date(state.filters.fechaHasta);
+        hasta.setHours(23, 59, 59, 999);
+        if (fechaReporte > hasta) return;
+      }
+    }
 
     const latlng = [coords[1], coords[0]];
     const color = getMarkerColor(props.tipo);
@@ -312,6 +353,19 @@ function applyFilterBuffers() {
     const props = feature.properties;
     if (state.filters.tipo && props.tipo_reporte !== state.filters.tipo) return;
 
+    // Filtro por fecha
+    if (state.filters.fechaDesde || state.filters.fechaHasta) {
+      const rawFecha = props.fecha_reporte || props.fecha;
+      const fechaBuffer = rawFecha ? new Date(rawFecha) : null;
+      if (!fechaBuffer || isNaN(fechaBuffer)) return;
+      if (state.filters.fechaDesde && fechaBuffer < state.filters.fechaDesde) return;
+      if (state.filters.fechaHasta) {
+        const hasta = new Date(state.filters.fechaHasta);
+        hasta.setHours(23, 59, 59, 999);
+        if (fechaBuffer > hasta) return;
+      }
+    }
+
     const color = getMarkerColor(props.tipo_reporte);
 
     const polygon = L.polygon(
@@ -348,36 +402,27 @@ function updateHeatmap() {
 
   if (puntos.length === 0) return;
 
-  let clusters = puntos.map(p => ({
-    lat: p.lat,
-    lng: p.lng,
-    count: 1,
-    clustered: false
-  }));
+  // Agrupación por cuadrícula O(n): cada celda tiene tamaño CELL_SIZE en grados.
+  // Todos los puntos dentro de la misma celda se fusionan en un solo centroide.
+  const CELL_SIZE = 0.004;
+  const grid = new Map();
 
-  const minDistance = 0.004;
-  let merged = true;
-
-  while (merged) {
-    merged = false;
-    for (let i = 0; i < clusters.length; i++) {
-      for (let j = i + 1; j < clusters.length; j++) {
-        const dist = Math.sqrt(
-          Math.pow(clusters[i].lat - clusters[j].lat, 2) +
-          Math.pow(clusters[i].lng - clusters[j].lng, 2)
-        );
-
-        if (dist < minDistance) {
-          clusters[i].lat = (clusters[i].lat * clusters[i].count + clusters[j].lat * clusters[j].count) / (clusters[i].count + clusters[j].count);
-          clusters[i].lng = (clusters[i].lng * clusters[i].count + clusters[j].lng * clusters[j].count) / (clusters[i].count + clusters[j].count);
-          clusters[i].count += clusters[j].count;
-          clusters.splice(j, 1);
-          merged = true;
-          j--;
-        }
-      }
+  puntos.forEach(p => {
+    const key = `${Math.floor(p.lat / CELL_SIZE)}:${Math.floor(p.lng / CELL_SIZE)}`;
+    if (!grid.has(key)) {
+      grid.set(key, { latSum: 0, lngSum: 0, count: 0 });
     }
-  }
+    const cell = grid.get(key);
+    cell.latSum += p.lat;
+    cell.lngSum += p.lng;
+    cell.count  += 1;
+  });
+
+  const clusters = Array.from(grid.values()).map(cell => ({
+    lat: cell.latSum / cell.count,
+    lng: cell.lngSum / cell.count,
+    count: cell.count
+  }));
 
   const maxCount = Math.max(...clusters.map(c => c.count));
 
@@ -541,6 +586,28 @@ function attachEventListeners() {
     applyFilterBuffers();
   });
 
+  // Filtro por fecha
+  document.getElementById('filterFechaDesde').addEventListener('change', (e) => {
+    state.filters.fechaDesde = e.target.value ? new Date(e.target.value) : null;
+    applyFilters();
+    applyFilterBuffers();
+  });
+
+  document.getElementById('filterFechaHasta').addEventListener('change', (e) => {
+    state.filters.fechaHasta = e.target.value ? new Date(e.target.value) : null;
+    applyFilters();
+    applyFilterBuffers();
+  });
+
+  document.getElementById('btnLimpiarFecha').addEventListener('click', () => {
+    document.getElementById('filterFechaDesde').value = '';
+    document.getElementById('filterFechaHasta').value = '';
+    state.filters.fechaDesde = null;
+    state.filters.fechaHasta = null;
+    applyFilters();
+    applyFilterBuffers();
+  });
+
   // Cambio de tipo de mapa base
   document.querySelectorAll('input[name="mapBase"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -572,7 +639,6 @@ function attachEventListeners() {
       }
       loadRankingTipos();
       loadRankingColonias();
-      loadDensidadColonias();
     }
   });
   document.getElementById('closeStatsBtn').addEventListener('click', () => closeStatsPanel());
@@ -594,13 +660,14 @@ function attachEventListeners() {
 
   document.getElementById('btnHelp').addEventListener('click', () => openModal('helpModal'));
   document.getElementById('btnAbout').addEventListener('click', () => openModal('aboutModal'));
+  document.getElementById('btnShare').addEventListener('click', handleShare);
   document.getElementById('closeHelpBtn').addEventListener('click', () => closeModal('helpModal'));
+  document.getElementById('closeHelpFooterBtn').addEventListener('click', () => closeModal('helpModal'));
   document.getElementById('closeAboutBtn').addEventListener('click', () => closeModal('aboutModal'));
   document.getElementById('closeFormBtn').addEventListener('click', closeReportForm);
   // Términos y Condiciones
   document.getElementById('btnTerminos')?.addEventListener('click', () => openModal('terminosModal'));
   document.getElementById('closeTerminosBtn')?.addEventListener('click', () => closeModal('terminosModal'));
-  document.getElementById('closeTerminosFooterBtn')?.addEventListener('click', () => closeModal('terminosModal'));
   document.getElementById('closeTerminosFooterBtn')?.addEventListener('click', () => closeModal('terminosModal'));
   document.getElementById('btnVerTerminos')?.addEventListener('click', () => openModal('terminosModal'));
 
@@ -667,11 +734,6 @@ function attachEventListeners() {
       showStatus('Error al enviar el mensaje. Inténtalo de nuevo.', 'error');
     }
   });
-
-  document.getElementById('btnInfoBuffers').addEventListener('click', () => openModal('buffersModal'));
-  document.getElementById('btnInfoHeatmap').addEventListener('click', () => openModal('heatmapModal'));
-  document.getElementById('closeBuffersBtn').addEventListener('click', () => closeModal('buffersModal'));
-  document.getElementById('closeHeatmapBtn').addEventListener('click', () => closeModal('heatmapModal'));
 
   // Panel de control
   document.getElementById('closePanelBtn').addEventListener('click', closePanel);
@@ -1295,7 +1357,7 @@ function handlePhotoUpload(e) {
 
   // Validar tamaño
   if (file.size > SECURITY.MAX_FOTO_BYTES) {
-    showStatus('La imagen es muy grande. Máximo 5MB', 'error');
+    showStatus('La imagen es muy grande. Máximo 15MB', 'error');
     e.target.value = '';
     state.form.fotoFile = null;
     state.form.foto = null;
@@ -1336,7 +1398,7 @@ function removePhoto() {
 // =============================================
 function openModal(modalId) {
   // Whitelist de IDs de modales permitidos
-  const modalesPermitidos = ['formModal', 'helpModal', 'aboutModal', 'buffersModal', 'heatmapModal', 'terminosModal', 'contactoModal'];
+  const modalesPermitidos = ['formModal', 'helpModal', 'aboutModal', 'terminosModal', 'contactoModal'];
   if (!modalesPermitidos.includes(modalId)) return;
 
   const modal = document.getElementById(modalId);
@@ -1512,22 +1574,19 @@ function isValidEmail(email) {
 // ACTUALIZACIONES EN TIEMPO REAL
 // =============================================
 function setupRealtimeUpdates() {
+  // Supabase v1: .from().on() — .channel() es API de v2
   supabase
-    .channel('public:Reportes')
-    .on(
-      'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'Reportes' },
-      (payload) => {
-        const newRow = payload.new;
-        state.data.reportes.push({
-          geometry: { coordinates: [newRow.long, newRow.lat] },
-          properties: newRow
-        });
-        applyFilters();
-        loadBuffers();
-        showStatus('Nuevo reporte recibido', 'info');
-      }
-    )
+    .from('Reportes')
+    .on('INSERT', (payload) => {
+      const newRow = payload.new;
+      state.data.reportes.push({
+        geometry: { coordinates: [newRow.long, newRow.lat] },
+        properties: newRow
+      });
+      applyFilters();
+      loadBuffers();
+      showStatus('Nuevo reporte recibido', 'info');
+    })
     .subscribe();
 }
 
@@ -2099,10 +2158,9 @@ function getTipoLugarIcono(cls, type) {
 // =============================================
 // FOTO VALIDADA EN POPUP
 // =============================================
-async function loadFotoValidada(identificadorUnico, marker) {
-  if (!identificadorUnico) { console.log('[Foto] sin identificadorUnico'); return; }
+async function loadFotoValidada(identificadorUnico) {
+  if (!identificadorUnico) return;
   try {
-    // 1. Buscar foto validada
     const { data, error } = await supabase
       .from('reporte_fotos')
       .select('storage_path')
@@ -2110,25 +2168,19 @@ async function loadFotoValidada(identificadorUnico, marker) {
       .eq('validado', 1)
       .limit(1);
 
-    console.log('[Foto] query:', { data, error, identificadorUnico });
-    if (error || !data || data.length === 0) { console.log('[Foto] sin foto validada'); return; }
+    if (error || !data || data.length === 0) return;
 
     const storagePath = data[0].storage_path;
-    console.log('[Foto] storagePath:', storagePath);
     if (!storagePath) return;
 
-    // 2. Signed URL — 1 hora
+    // Signed URL válida por 1 hora
     const { signedURL, error: signError } = await supabase.storage
       .from('reporte_fotos')
       .createSignedUrl(storagePath, 3600);
 
-    console.log('[Foto] signedURL:', signedURL, 'error:', signError);
-    if (signError || !signedURL) { console.log('[Foto] fallo signed URL'); return; }
+    if (signError || !signedURL) return;
 
-    // 3. El popup puede seguir abierto o haberse cerrado mientras esperábamos la respuesta.
-    // Buscar el footer con selector amplio para mayor compatibilidad.
     const footer = document.querySelector('.popup-footer');
-    console.log('[Foto] footer encontrado:', !!footer);
     if (!footer) return;
     if (footer.querySelector('.popup-foto-btn')) return;
 
@@ -2137,22 +2189,20 @@ async function loadFotoValidada(identificadorUnico, marker) {
     btn.title = 'Ver fotografía del reporte';
     btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Ver foto';
     btn.addEventListener('click', (e) => {
-      e.stopPropagation(); // evitar que el listener global intercepte este click
+      e.stopPropagation();
       openFotoModal(signedURL);
     });
     footer.appendChild(btn);
-    console.log('[Foto] botón inyectado OK');
 
   } catch (err) {
-    console.error('[Foto] excepcion:', err);
+    console.error('[Foto]', err);
   }
 }
 
 function openFotoModal(url) {
-  console.log('[Foto] openFotoModal url:', url);
   const modal = document.getElementById('fotoModal');
   const img   = document.getElementById('fotoModalImg');
-  if (!modal || !img) { console.error('[Foto] modal o img no encontrados'); return; }
+  if (!modal || !img) return;
   img.src = url;
   modal.classList.add('show');
 }
@@ -2162,6 +2212,43 @@ function closeFotoModal() {
   const img   = document.getElementById('fotoModalImg');
   if (modal) modal.classList.remove('show');
   setTimeout(() => { if (img) img.src = ''; }, 250);
+}
+
+// =============================================
+// COMPARTIR GEOPORTAL
+// =============================================
+async function handleShare() {
+  const url   = window.location.href.split('?')[0]; // URL limpia sin parámetros
+  const title = 'Geoportal Tampico';
+  const text  = 'Reporta y visualiza problemáticas urbanas en Tampico. ¡Ayúdanos a mejorar la ciudad!';
+  const btn   = document.getElementById('btnShare');
+
+  // Web Share API — disponible en móviles modernos
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+    } catch (err) {
+      // El usuario canceló — no hacer nada
+      if (err.name !== 'AbortError') console.error(err);
+    }
+    return;
+  }
+
+  // Fallback: copiar al clipboard en escritorio
+  try {
+    await navigator.clipboard.writeText(url);
+    // Feedback visual en el botón
+    const txtEl = btn.querySelector('.share-btn-text');
+    const originalText = txtEl ? txtEl.textContent : 'Compartir';
+    if (txtEl) txtEl.textContent = '¡Copiado!';
+    btn.classList.add('nav-btn-share--copied');
+    setTimeout(() => {
+      if (txtEl) txtEl.textContent = originalText;
+      btn.classList.remove('nav-btn-share--copied');
+    }, 2000);
+  } catch {
+    showStatus('No se pudo copiar el enlace', 'error');
+  }
 }
 
 // =============================================

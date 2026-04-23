@@ -1,4 +1,3 @@
-
 /* =============================================
    IMPORT FONTS
    ============================================= */
@@ -376,6 +375,70 @@ html, body {
   background-color: white;
   box-shadow: 0 0 0 3px rgba(61,61,61,0.08);
 }
+
+/* =============================================
+   FILTRO POR FECHA
+   ============================================= */
+.date-filter-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+
+.date-filter-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+}
+
+.date-filter-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.date-input {
+  width: 100%;
+  padding: 0.52rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--dark);
+  outline: none;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.date-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(61,61,61,0.08);
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  opacity: 0.45;
+  cursor: pointer;
+}
+
+.btn-limpiar-fecha {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-size: 0.74rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  padding: 0.1rem 0;
+  transition: color 0.18s ease;
+}
+
+.btn-limpiar-fecha:hover { color: var(--danger); }
 
 /* Buttons */
 .btn {
@@ -1798,4 +1861,74 @@ html, body {
   .foto-modal-img {
     max-height: calc(95vh - 120px);
   }
+}
+
+/* =============================================
+   BOTÓN COMPARTIR
+   ============================================= */
+.nav-btn-share {
+  border-color: rgba(74,103,65,0.5);
+  color: rgba(255,255,255,0.85);
+  background: rgba(74,103,65,0.15);
+}
+
+.nav-btn-share:hover {
+  background: rgba(74,103,65,0.35);
+  border-color: rgba(74,103,65,0.8);
+  color: white;
+}
+
+.nav-btn-share--copied {
+  background: rgba(74,103,65,0.45) !important;
+  border-color: var(--accent) !important;
+  color: white !important;
+}
+
+@media (max-width: 480px) {
+  .share-btn-text { display: none; }
+}
+
+/* =============================================
+   LOADING OVERLAY (carga inicial de datos)
+   ============================================= */
+#loadingOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(28, 28, 28, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+#loadingOverlay.loading-overlay--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-overlay-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2.5px solid rgba(255,255,255,0.2);
+  border-top-color: var(--accent-light);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
