@@ -380,16 +380,17 @@ html, body {
    FILTRO POR FECHA
    ============================================= */
 .date-filter-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   margin-bottom: 0.55rem;
 }
 
 .date-filter-field {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.22rem;
+  min-width: 0;
 }
 
 .date-filter-label {
@@ -402,16 +403,18 @@ html, body {
 
 .date-input {
   width: 100%;
-  padding: 0.52rem 0.65rem;
+  box-sizing: border-box;
+  padding: 0.52rem 0.4rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-family: 'DM Sans', sans-serif;
   background: var(--surface);
   color: var(--dark);
   outline: none;
   transition: var(--transition);
   cursor: pointer;
+  min-width: 0;
 }
 
 .date-input:focus {
@@ -422,6 +425,9 @@ html, body {
 .date-input::-webkit-calendar-picker-indicator {
   opacity: 0.45;
   cursor: pointer;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .btn-limpiar-fecha {
