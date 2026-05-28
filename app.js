@@ -98,11 +98,16 @@ const colorPorTipo = {
 document.addEventListener('DOMContentLoaded', async () => {
   initializeMap();
   showLoadingOverlay(true);
-  await loadAllData();
-  showLoadingOverlay(false);
-  attachEventListeners();
-  setupRealtimeUpdates();
-  handleResponsive();
+  try {
+    await loadAllData();
+  } catch (error) {
+    showStatus('Error al cargar datos. Intenta recargar la página.', 'error');
+  } finally {
+    showLoadingOverlay(false);
+    attachEventListeners();
+    setupRealtimeUpdates();
+    handleResponsive();
+  }
 
   // (listeners del modal de foto registrados por delegación al final del archivo)
 });
