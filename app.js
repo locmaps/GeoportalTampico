@@ -670,37 +670,6 @@ function attachEventListeners() {
   document.getElementById('closeHelpFooterBtn').addEventListener('click', () => closeModal('helpModal'));
   document.getElementById('closeAboutBtn').addEventListener('click', () => closeModal('aboutModal'));
   document.getElementById('closeFormBtn').addEventListener('click', closeReportForm);
-
-  // Menú móvil
-  const mobilePanel = document.getElementById('mobileNavPanel');
-  const mobileOverlay = document.getElementById('mobileNavOverlay');
-
-  function openMobileNav() {
-    mobilePanel.classList.add('open');
-    mobileOverlay.classList.add('open');
-    mobilePanel.setAttribute('aria-hidden', 'false');
-  }
-  function closeMobileNav() {
-    mobilePanel.classList.remove('open');
-    mobileOverlay.classList.remove('open');
-    mobilePanel.setAttribute('aria-hidden', 'true');
-  }
-
-  document.getElementById('btnNavMenu').addEventListener('click', openMobileNav);
-  document.getElementById('closeMobileNav').addEventListener('click', closeMobileNav);
-  mobileOverlay.addEventListener('click', closeMobileNav);
-
-  document.querySelectorAll('.mobile-nav-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      closeMobileNav();
-      const action = btn.dataset.action;
-      if (action === 'stats')    document.getElementById('btnStats').click();
-      if (action === 'help')     openModal('helpModal');
-      if (action === 'terminos') openModal('terminosModal');
-      if (action === 'about')    openModal('aboutModal');
-      if (action === 'share')    handleShare();
-    });
-  });
   // Términos y Condiciones
   document.getElementById('btnTerminos')?.addEventListener('click', () => openModal('terminosModal'));
   document.getElementById('closeTerminosBtn')?.addEventListener('click', () => closeModal('terminosModal'));
