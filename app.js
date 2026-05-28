@@ -664,9 +664,8 @@ function attachEventListeners() {
   });
 
   document.getElementById('btnHelp').addEventListener('click', () => openModal('helpModal'));
-  document.getElementById('btnAbout')?.addEventListener('click', () => openModal('aboutModal'));
+  document.getElementById('btnAbout').addEventListener('click', () => openModal('aboutModal'));
   document.getElementById('btnShare').addEventListener('click', handleShare);
-
   document.getElementById('closeHelpBtn').addEventListener('click', () => closeModal('helpModal'));
   document.getElementById('closeHelpFooterBtn').addEventListener('click', () => closeModal('helpModal'));
   document.getElementById('closeAboutBtn').addEventListener('click', () => closeModal('aboutModal'));

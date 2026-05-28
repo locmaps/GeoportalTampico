@@ -1934,13 +1934,3 @@ html, body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-/* =============================================
-   NAV MÓVIL — solo íconos en ≤768px
-   ============================================= */
-@media (max-width: 768px) {
-  .nav-btn span:not(.ico) { display: none; }
-  .share-btn-text         { display: none; }
-  .nav-btn                { padding: 0.42rem 0.55rem; gap: 0; }
-  .nav-btn .ico           { margin-right: 0; }
-}
