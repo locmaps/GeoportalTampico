@@ -1222,10 +1222,6 @@ html, body {
 @media (max-width: 768px) {
   .nav-btn-secondary { display: none !important; }
 
-  /* Hamburguesa desde 768px */
-  .nav-section .nav-btn:not(.nav-btn-menu) { display: none !important; }
-  .nav-btn-menu { display: flex !important; }
-
   .control-panel {
     width: 100%; height: auto; max-height: 60vh;
     top: 58px; border-right: none;
@@ -1262,8 +1258,14 @@ html, body {
 /* =============================================
    MENÚ MÓVIL DESPLEGABLE
    ============================================= */
-.nav-btn-menu {
-  display: none;
+
+/* Por defecto oculto en escritorio */
+.nav-btn-menu { display: none; }
+
+/* En móvil: ocultar botones normales, mostrar hamburguesa */
+@media (max-width: 768px) {
+  .nav-section .nav-btn:not(.nav-btn-menu) { display: none !important; }
+  .nav-btn-menu { display: flex !important; }
 }
 
 @media (max-width: 480px) {
@@ -1274,9 +1276,6 @@ html, body {
   .nav-btn .icon { display: none; }
   .modal-content { max-width: 100%; max-height: 95vh; }
   .modal { padding: 0.75rem; }
-  /* Ocultar todos los botones de nav excepto el hamburguesa */
-  .nav-section .nav-btn:not(.nav-btn-menu) { display: none !important; }
-  .nav-btn-menu { display: flex !important; }
 }
 
 .mobile-nav-overlay {
