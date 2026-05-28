@@ -1222,11 +1222,11 @@ html, body {
 @media (max-width: 768px) {
   .nav-btn-secondary { display: none !important; }
 
-  /* Solo íconos en móvil — ocultar texto de todos los botones de nav */
-  .nav-btn span:not(.ico) { display: none; }
-  .share-btn-text { display: none; }
-  .nav-btn { padding: 0.42rem 0.6rem; gap: 0; }
-  .nav-btn .ico { margin-right: 0; }
+  /* Solo íconos en móvil */
+  .btn-text           { display: none; }
+  .share-btn-text     { display: none; }
+  .nav-btn            { padding: 0.42rem 0.6rem; gap: 0; }
+  .nav-btn .ico       { margin-right: 0; }
 
   .control-panel {
     width: 100%; height: auto; max-height: 60vh;
