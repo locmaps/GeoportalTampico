@@ -664,7 +664,7 @@ function attachEventListeners() {
   });
 
   document.getElementById('btnHelp').addEventListener('click', () => openModal('helpModal'));
-  document.getElementById('btnAbout').addEventListener('click', () => openModal('aboutModal'));
+  document.getElementById('btnAbout')?.addEventListener('click', () => openModal('aboutModal'));
   document.getElementById('btnShare').addEventListener('click', handleShare);
 
   document.getElementById('closeHelpBtn').addEventListener('click', () => closeModal('helpModal'));
