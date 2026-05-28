@@ -667,36 +667,6 @@ function attachEventListeners() {
   document.getElementById('btnAbout').addEventListener('click', () => openModal('aboutModal'));
   document.getElementById('btnShare').addEventListener('click', handleShare);
 
-  // Menú móvil
-  const mobilePanel   = document.getElementById('mobileNavPanel');
-  const mobileOverlay = document.getElementById('mobileNavOverlay');
-
-  function openMobileNav() {
-    mobilePanel.classList.add('open');
-    mobileOverlay.classList.add('open');
-    mobilePanel.setAttribute('aria-hidden', 'false');
-  }
-  function closeMobileNav() {
-    mobilePanel.classList.remove('open');
-    mobileOverlay.classList.remove('open');
-    mobilePanel.setAttribute('aria-hidden', 'true');
-  }
-
-  document.getElementById('btnNavMenu').addEventListener('click', openMobileNav);
-  document.getElementById('closeMobileNav').addEventListener('click', closeMobileNav);
-  mobileOverlay.addEventListener('click', closeMobileNav);
-
-  document.querySelectorAll('.mobile-nav-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      closeMobileNav();
-      const action = btn.dataset.action;
-      if (action === 'stats')    document.getElementById('btnStats').click();
-      if (action === 'help')     openModal('helpModal');
-      if (action === 'terminos') openModal('terminosModal');
-      if (action === 'about')    openModal('aboutModal');
-      if (action === 'share')    handleShare();
-    });
-  });
   document.getElementById('closeHelpBtn').addEventListener('click', () => closeModal('helpModal'));
   document.getElementById('closeHelpFooterBtn').addEventListener('click', () => closeModal('helpModal'));
   document.getElementById('closeAboutBtn').addEventListener('click', () => closeModal('aboutModal'));

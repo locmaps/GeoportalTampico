@@ -1936,92 +1936,11 @@ html, body {
 }
 
 /* =============================================
-   MENÚ MÓVIL DESPLEGABLE
+   NAV MÓVIL — solo íconos en ≤768px
    ============================================= */
-.nav-btn-menu { display: none; }
-
 @media (max-width: 768px) {
-  .nav-section .nav-btn:not(.nav-btn-menu) { display: none !important; }
-  .nav-btn-menu { display: flex !important; }
+  .nav-btn span:not(.ico) { display: none; }
+  .share-btn-text         { display: none; }
+  .nav-btn                { padding: 0.42rem 0.55rem; gap: 0; }
+  .nav-btn .ico           { margin-right: 0; }
 }
-
-.mobile-nav-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 1100;
-  background: rgba(0,0,0,0.45);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-.mobile-nav-overlay.open { display: block; opacity: 1; }
-
-.mobile-nav-panel {
-  position: fixed;
-  top: 0; right: 0;
-  width: 260px; height: 100%;
-  z-index: 1200;
-  background: var(--surface);
-  box-shadow: -4px 0 20px rgba(0,0,0,0.18);
-  transform: translateX(100%);
-  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-  display: flex;
-  flex-direction: column;
-}
-.mobile-nav-panel.open { transform: translateX(0); }
-
-.mobile-nav-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--dark);
-}
-.mobile-nav-title {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.75);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.mobile-nav-close {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.6);
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  border-radius: 4px;
-  transition: var(--transition);
-}
-.mobile-nav-close:hover { color: white; background: rgba(255,255,255,0.1); }
-
-.mobile-nav-items { flex: 1; padding: 0.75rem 0; overflow-y: auto; }
-
-.mobile-nav-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1.25rem;
-  background: none;
-  border: none;
-  font-size: 0.88rem;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--dark);
-  cursor: pointer;
-  transition: background 0.15s ease;
-  text-align: left;
-}
-.mobile-nav-item:hover { background: var(--border-light); }
-.mobile-nav-item .ico { opacity: 0.55; flex-shrink: 0; }
-
-.mobile-nav-item--share {
-  color: var(--accent);
-  border-top: 1px solid var(--border-light);
-  margin-top: 0.5rem;
-  padding-top: 1.1rem;
-}
-.mobile-nav-item--share .ico { opacity: 0.8; }
