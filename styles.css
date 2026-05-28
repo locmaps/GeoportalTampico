@@ -1222,6 +1222,10 @@ html, body {
 @media (max-width: 768px) {
   .nav-btn-secondary { display: none !important; }
 
+  /* Hamburguesa desde 768px */
+  .nav-section .nav-btn:not(.nav-btn-menu) { display: none !important; }
+  .nav-btn-menu { display: flex !important; }
+
   .control-panel {
     width: 100%; height: auto; max-height: 60vh;
     top: 58px; border-right: none;
@@ -1255,6 +1259,13 @@ html, body {
   .nav-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
 }
 
+/* =============================================
+   MENÚ MÓVIL DESPLEGABLE
+   ============================================= */
+.nav-btn-menu {
+  display: none;
+}
+
 @media (max-width: 480px) {
   .logo-section .tagline { display: none; }
   .header-content { padding: 0 0.75rem; }
@@ -1264,15 +1275,8 @@ html, body {
   .modal-content { max-width: 100%; max-height: 95vh; }
   .modal { padding: 0.75rem; }
   /* Ocultar todos los botones de nav excepto el hamburguesa */
-  .nav-section .nav-btn:not(.nav-btn-menu) { display: none; }
-  .nav-btn-menu { display: flex; }
-}
-
-/* =============================================
-   MENÚ MÓVIL DESPLEGABLE
-   ============================================= */
-.nav-btn-menu {
-  display: none;
+  .nav-section .nav-btn:not(.nav-btn-menu) { display: none !important; }
+  .nav-btn-menu { display: flex !important; }
 }
 
 .mobile-nav-overlay {
